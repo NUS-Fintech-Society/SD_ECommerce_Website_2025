@@ -10,10 +10,10 @@ const order = require("./routes/order_route");
 // Importing the mongooose package
 const mongoose = require('mongoose');
 const app = express();
-const port = 5000;
+const port = process.env.PORT;
 
 mongoose
-    .connect('mongodb://127.0.0.1/Eleos') // Changing to MongoAtlas //Use localhost for now
+    .connect(`${process.env.MONGO_URI}`) // Changing to MongoAtlas //Use localhost for now
     .then(() => console.log('Connected to MongoDB...'))
     .catch((err) => console.error('Could not connect to MongoDB...'));
 
