@@ -23,7 +23,7 @@ Before running the project, you need to create `.env` files for both the server 
 2. Add the following environment variables to the SERVER `.env` file:
    ```plaintext
    MONGO_URI=mongodb://127.0.0.1/Eleos  # or your MongoDB Atlas connection string
-   SECRET_KEY=your_jwt_secret_here      # Replace with your JWT secret key. Follow this [instruction](https://dev.to/tkirwa/generate-a-random-jwt-secret-key-39j4) to obtain your JWT Secret Key
+   SECRET_KEY=your_jwt_secret_here      # Replace with your JWT secret key. Follow this instruction (https://dev.to/tkirwa/generate-a-random-jwt-secret-key-39j4) to obtain your JWT Secret Key
    PORT=5000                            # Specify the port for your server
 3. Add the following environment variables to the CLIENT `.env` file:
    ```plaintext
