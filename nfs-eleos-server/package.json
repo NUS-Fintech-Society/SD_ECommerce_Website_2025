@@ -1,0 +1,65 @@
+{
+  "name": "server",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@metamodules/postgres": "^1.2.1",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "deploy-node-app": "^1.4.3",
+    "docker": "^1.0.0",
+    "dotenv": "^8.6.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.7.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-scripts": "3.0.1"
+  },
+  "devDependencies": {
+    "babel-eslint": "10.0.1",
+    "concurrently": "^4.1.0",
+    "cross-spawn": "^6.0.5",
+    "eslint": "^5.16.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-flowtype": "2.50.1",
+    "eslint-plugin-import": "2.16.0",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-promise": "^4.1.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "nodemon": "^1.19.4",
+    "prettier": "^1.17.1"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "build": "react-scripts build",
+    "deploy": "deploy-node-app",
+    "test": "react-scripts test",
+    "eject-www": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "deploy-node-app": {
+    "prod": {
+      "port": 5000,
+      "protocol": "http",
+      "entrypoint": "src/index.js",
+      "type": "spa"
+    },
+    "dev": {
+      "port": 5000,
+      "protocol": "http",
+      "entrypoint": "src/index.js",
+      "registry": "",
+      "type": "spa",
+      "isPublic": false
+    }
+  }
+}
