@@ -2,7 +2,7 @@
 
 ## GIT Workflow (IMPORTANT ❗)
 - [Git-Fork-Branch-Pull-Workflow](https://www.notion.so/Git-Fork-Branch-Pull-Workflow-cef618a26b13417a8f904dccc4d9e92a)
-- # The Fork & Pull Workflow
+- ### The Fork & Pull Workflow
 The fork and pull workflow is necessary for effectively and efficiently contributing to and collaborating on open-source work.
 [Credits](https://www.tomasbeuzen.com/post/git-fork-branch-pull/).
 1. Fork the GitHub repository.
