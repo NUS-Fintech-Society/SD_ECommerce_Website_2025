@@ -2,6 +2,22 @@
 
 ## GIT Workflow (IMPORTANT ❗)
 - [Git-Fork-Branch-Pull-Workflow](https://www.notion.so/Git-Fork-Branch-Pull-Workflow-cef618a26b13417a8f904dccc4d9e92a)
+- # The Fork & Pull Workflow
+The fork and pull workflow is necessary for effectively and efficiently contributing to and collaborating on open-source work.
+[Credits](https://www.tomasbeuzen.com/post/git-fork-branch-pull/).
+1. Fork the GitHub repository.
+2. Clone locally: `git clone https://github.com/NUS-Fintech-Society/SD_ECommerce_Website.git`.
+3. Add "upstream" remote: `git remote add upstream https://github.com/NUS-Fintech-Society/SD_ECommerce_Website.git`
+4. Create local dev branch: `git checkout -b new_feature`
+5. Make changes on branch until ready to push to "upstream" repo.
+6. Push branch to remote: `git push origin new_feature`
+7. Pull from "upstream" repo into master: `git checkout main`, `git pull upstream main`
+8. Sync any changes with dev branch: `git checkout new_feature`, `git merge main`
+9. Open Pull request on your own repo (origin) in GitHub (dev branch to "upstream")
+    Naming convention: "fix: icon overlay issue with top banner during scrolling"
+10. Once Pull request accepted, update your fork: `git checkout main`, `git pull upstream main`
+11. Delete dev branch on GitHub, or locally with: `git branch -d new_feature`, `git push origin --delete new_feature`
+
 
 
 ## Tech Stack 👨‍💻
