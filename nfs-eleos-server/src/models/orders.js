@@ -8,8 +8,10 @@ const orderSchema = new mongoose.Schema({
   city: { type: String, required: true },
   country: { type: String, required: true },
   zipCode: { type: String, required: true },
-  totalAmount: { type: String, required: true },
-  items: { type: String, required: true },
+  items: [{
+    product: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
+    quantity: { type: Number, required: true },
+  }],
   createdDate: { type: Date, required: true },
 });
 

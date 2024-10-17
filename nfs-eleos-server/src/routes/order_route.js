@@ -2,6 +2,43 @@ const express = require("express");
 const mongoose = require("mongoose");
 const { Order } = require("../models/orders");
 const router = express.Router();
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
+
+// Create a checkout session
+router.post("/create-checkout-session", async (req, res) => {
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      payment_method_types: ["card", "paynow", "grabpay"],
+      line_items: req.body.order.items.map(item => {
+        return {
+          price_data: {
+            currency: "sgd",
+            product_data: {
+              name: item.product.title
+            },
+            unit_amount: item.product.price * 100 // in cents
+          },
+          quantity: item.quantity,
+        }
+      }),
+      success_url: `http://localhost:5000/order/success`, // Temporary URL
+      cancel_url: `http://localhost:5000/order/cancel` // Temporary URL
+    })
+    res.status(200).send({message: "Checkout session successfully created", url: session.url });
+  } catch (err) {
+    res.status(500).send({message: "Error creating checkout session", error: err });
+  }
+});
+
+// Tester routes for success and cancel
+router.get('/success', (req, res) => {
+  res.send("Payment successful! Thank you for your purchase.");
+});
+
+router.get('/cancel', (req, res) => {
+  res.send("Payment canceled. Please try again.");
+});
 
 // Get all orders
 router.get("/", async (req, res) => {
