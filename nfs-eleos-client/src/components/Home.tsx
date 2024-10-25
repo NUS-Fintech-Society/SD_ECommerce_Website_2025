@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { apiRequest } from "../api/apiRequest";
+import Navbar from "./Navbar"
 
 const Home = () => {
     useEffect(() => {
@@ -64,7 +65,12 @@ const Home = () => {
         fetchAllUsers();
         fetchUserById("60d21b4667d0d8992e610c85"); // Replace with a valid user ID
     }, []);
-    return <div>Welcome to ELEOS Landing Page</div>;
+    
+    //Navbar should not be shown during the landing page as user has not logged in
+    return <div>
+        <Navbar />   
+        Welcome to ELEOS Home Page 
+    </div>;
 };
 
 export default Home;

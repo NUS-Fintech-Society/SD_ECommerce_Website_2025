@@ -5,6 +5,8 @@ import App from "./App";
 import Home from "./components/Home";
 import "./index.css";
 import Admin from "./components/Admin";
+import Login from "./components/Login";
+import Landing from "./components/LandingPage";
 
 const router = createBrowserRouter([
     {
@@ -12,8 +14,16 @@ const router = createBrowserRouter([
         element: <App />,
         children: [
             {
-                path: "/",
+                path: "/", // Landing page route
+                element: <Landing />,
+            },
+            {
+                path: "/home",
                 element: <Home />,
+            },
+            {
+                path: "/login", // Login page route
+                element: <Login />,
             },
         ],
     },
