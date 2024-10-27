@@ -58,11 +58,35 @@ const Home = () => {
             }
         };
 
+        // Test the stripe API endpoint
+        const checkoutCart = async () => {
+            try {
+                console.log("Testing checkout API");
+                const response = await apiRequest("order", "POST", "create-checkout-session", {
+                    order: {
+                        items: [
+                            { product: { title: "Product 1", price: 10}, quantity: 2},
+                            { product: { title: "Product 2", price: 5}, quantity: 1},
+                        ]
+                    },
+                });
+                if (response.success) {
+                    window.open(response.data.url, '_blank', 'width=600,height=800');
+                    console.log("Checkout successful: ", response)
+                } else {
+                    console.error("Error checking out: ", response)
+                }
+            } catch (error) {
+                console.log("Error:", error);
+            }
+        };
+
         // Call the test functions
         console.log("Testing API Endpoints:");
-        registerUser();
-        fetchAllUsers();
-        fetchUserById("60d21b4667d0d8992e610c85"); // Replace with a valid user ID
+        //registerUser();
+        //fetchAllUsers();
+        //fetchUserById("60d21b4667d0d8992e610c85"); // Replace with a valid user ID
+        checkoutCart();
     }, []);
     return <div>Welcome to ELEOS Landing Page</div>;
 };

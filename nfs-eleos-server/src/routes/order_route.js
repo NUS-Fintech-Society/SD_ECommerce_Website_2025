@@ -10,7 +10,7 @@ router.post("/create-checkout-session", async (req, res) => {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card", "paynow", "grabpay"],
-      line_items: req.body.order.items.map(item => {
+      line_items: req.body.data.order.items.map(item => {
         return {
           price_data: {
             currency: "sgd",
