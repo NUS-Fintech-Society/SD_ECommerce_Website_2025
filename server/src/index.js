@@ -1,11 +1,13 @@
 const express = require('express')
 require('dotenv').config();
 const isAuth = require("./middleware/auth");
+const bodyParser = require("./middleware/body_parser")
 const cors = require('cors');
 
 const product = require("./routes/product_route");
 const user = require("./routes/user_route");
 const order = require("./routes/order_route");
+const email = require("./routes/email_route");
 
 // Importing the mongooose package
 const mongoose = require('mongoose');
@@ -20,9 +22,12 @@ mongoose
 app.use(express.json());
 app.use(cors());
 app.use(isAuth);
+app.use(bodyParser);
+
 app.use("/product", product);
 app.use("/users", user);
 app.use("/order", order);
+app.use("/email", email);
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
