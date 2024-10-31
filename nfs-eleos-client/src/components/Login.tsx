@@ -45,13 +45,13 @@ const Login = () => {
         <div className="form-section">
           <div className="tab-buttons">
             <button
-              className="button button-tab-login"
+              className="button button-tab-login-on"
               onClick={() => navigate("/login")}
             >
               Log In
             </button>
             <button
-              className="button button-tab-signup"
+              className="button button-tab-signup-off"
               onClick={() => navigate("/signup")}
             >
               Sign Up
