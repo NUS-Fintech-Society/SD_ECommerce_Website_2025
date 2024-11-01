@@ -58,6 +58,23 @@ const Home = () => {
             }
         };
 
+        // Test the DELETE user endpoint
+        const deleteUserById = async (userId: string) => {
+            try {
+                const response = await apiRequest("users", "DELETE", userId);
+                if (response.success) {
+                    console.log(`User with ID ${userId} deleted successfully.`);
+                } else {
+                    console.error(
+                        `Error deleting user with ID ${userId}:`,
+                        response.message
+                    );
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        };
+
         // Test the stripe API endpoint
         const checkoutCart = async () => {
             try {
@@ -98,9 +115,10 @@ const Home = () => {
 
         // Call the test functions
         console.log("Testing API Endpoints:");
-        //registerUser();
+        // registerUser();
         //fetchAllUsers();
         //fetchUserById("60d21b4667d0d8992e610c85"); // Replace with a valid user ID
+        deleteUserById("6724bdae8fd159bacccfc239"); // Replace with a valid user ID for testing
         //checkoutCart();
     }, []);
     return <div>Welcome to ELEOS Home Page</div>;
