@@ -4,7 +4,7 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 1.5vh 2vw;;
+    padding: 1.5vh 2vw;
     position: fixed;
     top: 0;
     left: 0;
@@ -23,11 +23,11 @@
 /* Buttons container in navbar */
 .navbar-buttons {
     display: flex;
-    gap: 0.5vw;; /* Space between buttons */
+    gap: 0.5vw; /* Space between buttons */
 }
 
 /* Button styling in navbar */
-.button-login, 
+.button-login,
 .button-signup {
     padding: 8px 16px; /* Vertical and horizontal padding */
     border: 1px solid #add8e6; /* Border styling */
@@ -83,7 +83,7 @@
     font-weight: bold; /* Make title bold */
     color: #333; /* Set color for the title */
     margin: 0; /* Remove default margin */
-    padding-left: 1vw;; /* Add left padding for spacing in front */
+    padding-left: 1vw; /* Add left padding for spacing in front */
 }
 
 /* Logo subtitle styling */

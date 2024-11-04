@@ -15,10 +15,16 @@ const Landing = () => {
                 </div>
                 {/* Login and Signup buttons on the right */}
                 <div className="navbar-buttons">
-                    <button onClick={() => navigate("/login")} className="button button-login">
+                    <button
+                        onClick={() => navigate("/login")}
+                        className="button button-login"
+                    >
                         Log In
                     </button>
-                    <button onClick={() => navigate("/signup")} className="button button-signup">
+                    <button
+                        onClick={() => navigate("/signup")}
+                        className="button button-signup"
+                    >
                         Sign Up
                     </button>
                 </div>
@@ -28,14 +34,14 @@ const Landing = () => {
             <div className="flex-container">
                 {/* Logo Section */}
                 <div className="logo-section">
-                <div className="logo-box">
-                    <h1 className="logo-title"> NUS Fintech Society</h1>
-                    <h2 className="logo-subtitle">Landing Page Content</h2>
+                    <div className="logo-box">
+                        <h1 className="logo-title"> NUS Fintech Society</h1>
+                        <h2 className="logo-subtitle">Landing Page Content</h2>
+                    </div>
                 </div>
-                </div>                  
             </div>
         </div>
-    );   
+    );
 };
 
 export default Landing;
