@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { apiRequest } from "../api/apiRequest";
+import Navbar from "./Navbar";
 
 const Home = () => {
     useEffect(() => {
