@@ -46,9 +46,9 @@
     justify-content: center;
 }
 
-/* Tab login and signup button styling */
-.button-tab-signup,
-.button-tab-login {
+/* Tab login and signup button OFF styling */
+.button-tab-signup-off,
+.button-tab-login-off {
     padding: 8px 16px; /* Vertical and horizontal padding */
     border: 1px solid #add8e6; /* Border styling */
     border-radius: 20px; /* Rounded corners */
@@ -60,14 +60,23 @@
     width: 10vw; /* Set a fixed width for consistent button size */
 }
 
-/* Style for login button specifically */
-.button-tab-login {
-    background-color: #add8e6; /* Light blue background for login */
+/* Tab login and signup button ON styling */
+.button-tab-signup-on,
+.button-tab-login-on {
+    padding: 8px 16px; /* Vertical and horizontal padding */
+    border: 1px solid #add8e6; /* Border styling */
+    border-radius: 20px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-size: 16px; /* Font size */
+    background-color: #add8e6; /* Light blue background */
+    color: #333; /* Text color */
+    transition: background-color 0.3s, color 0.3s; /* Smooth transition for hover effect */
+    width: 10vw; /* Set a fixed width for consistent button size */
 }
 
 /* Hover effects for tab buttons */
-.button-tab-login:hover,
-.button-tab-signup:hover {
+.button-tab-login-off:hover,
+.button-tab-signup-off:hover {
     background-color: #3c73a8; /* Dark blue on hover */
     color: white; /* White text on hover */
 }
