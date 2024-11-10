@@ -86,7 +86,7 @@ const Home = () => {
         //registerUser();
         //fetchAllUsers();
         //fetchUserById("60d21b4667d0d8992e610c85"); // Replace with a valid user ID
-        checkoutCart();
+        //checkoutCart();
     }, []);
     return <div>Welcome to ELEOS Landing Page</div>;
 };
