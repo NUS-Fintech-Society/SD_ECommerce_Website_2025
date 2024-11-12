@@ -114,6 +114,30 @@ const Home = () => {
             }
         };
 
+        //Test email sent to user
+        const sendEmail = async (emailAddr: string) => {
+            try {
+                const response = await apiRequest(
+                    "email",
+                    "POST",
+                    "send",
+                    {
+                        "to": emailAddr,
+                        "subject": "Test",
+                        "text": "This is a test"
+                    }
+                )
+                if (response.success) {
+                    console.log("Email sent to: ", emailAddr)
+                } else {
+                    console.log("Error when sending email: ", response.message)
+                }
+            } catch (error) {
+                console.log("Error: ", error)
+            }
+            
+        }
+
         // Call the test functions
         console.log("Testing API Endpoints:");
         // registerUser();
@@ -121,6 +145,7 @@ const Home = () => {
         //fetchUserById("60d21b4667d0d8992e610c85"); // Replace with a valid user ID
         deleteUserById("6724bdae8fd159bacccfc239"); // Replace with a valid user ID for testing
         //checkoutCart();
+        sendEmail("vijay75011@gmail.com"); //Replace with user email address
     }, []);
     return <div>Welcome to ELEOS Home Page</div>;
 };

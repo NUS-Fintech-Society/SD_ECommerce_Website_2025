@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.post('/send', async (req, res) => {
     try {
-        const { to, subject, text } = req.body;
+        const { data: {to, subject, text} } = req.body;
 
         if (!to || !subject || !text) {
             return res.status(400).json({message: "All fields are required"});
