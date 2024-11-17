@@ -35,6 +35,23 @@ const Home = () => {
       }
     };
 
+    // Test the DELETE user endpoint
+    const deleteUserById = async (userId: string) => {
+      try {
+        const response = await apiRequest("users", "DELETE", userId);
+        if (response.success) {
+          console.log(`User with ID ${userId} deleted successfully.`);
+        } else {
+          console.error(
+            `Error deleting user with ID ${userId}:`,
+            response.message
+          );
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+
     // Test the POST register endpoint
     const registerUser = async () => {
       try {
@@ -89,12 +106,31 @@ const Home = () => {
       }
     };
 
+    //Test email sent to user
+    const sendEmail = async (emailAddr: string) => {
+      try {
+        const response = await apiRequest("email", "POST", "send", {
+          to: emailAddr,
+          subject: "Test",
+          text: "This is a test",
+        });
+        if (response.success) {
+          console.log("Email sent to: ", emailAddr);
+        } else {
+          console.log("Error when sending email: ", response.message);
+        }
+      } catch (error) {
+        console.log("Error: ", error);
+      }
+    };
+
     // Call the test functions
     console.log("Testing API Endpoints:");
     //registerUser();
     //fetchAllUsers();
     //fetchUserById("60d21b4667d0d8992e610c85"); // Replace with a valid user ID
     //checkoutCart();
+    //sendEmail("vijay75011@gmail.com"); //Replace with user email address
   }, []);
   return (
     <>
