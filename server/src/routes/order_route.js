@@ -9,6 +9,7 @@ router.post("/create-checkout-session", async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
+      client_reference_id: req.body.data.userID,
       payment_method_types: ["card", "paynow", "grabpay"],
       line_items: req.body.data.order.items.map(item => {
         return {
@@ -75,7 +76,6 @@ router.post("/create", async (req, res) => {
       city: req.body.data.city,
       country: req.body.data.country,
       zipCode: req.body.data.zipCode,
-      totalAmount: req.body.data.totalAmount,
       items: req.body.data.items,
       createdDate: new Date(),
     });
@@ -102,7 +102,6 @@ router.put("/update/:id", async (req, res) => {
         city: req.body.data.city,
         country: req.body.data.country,
         zipCode: req.body.data.zipCode,
-        totalAmount: req.body.data.totalAmount,
         items: req.body.data.items,
       },
       { new: true }
