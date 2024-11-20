@@ -69,4 +69,18 @@ router.post("/login", async (req, res) => {
   res.send(data);
 });
 
+router.delete("/:id", async (req, res) => {
+  console.log("DELETE request received for ID:", req.params.id); // Add this
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    res.send({ message: "User account deleted successfully", userId: req.params.id });
+  } catch (error) {
+    console.error("Error in DELETE route:", error);
+    res.status(500).send("An error occurred while deleting the user");
+  }
+});
+
 module.exports = router;

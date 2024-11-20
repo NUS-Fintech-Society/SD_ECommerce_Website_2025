@@ -35,7 +35,7 @@ export const apiRequest = async (
                 response = await axios.get(url, { params: data });
                 break;
             case "POST":
-                response = await axios.post(url, { data });
+                response = await axios.post(url, data);
                 break;
             case "PUT":
                 response = await axios.put(url, { data });
@@ -46,6 +46,7 @@ export const apiRequest = async (
             default:
                 throw new Error("Invalid HTTP method");
         }
+        // await axios.post(url, data).then(e => console.log(e))
 
         return {
             success: true,
