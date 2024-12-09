@@ -9,7 +9,6 @@ router.get("/", async (req, res) => {
   res.send(JSON.stringify(users));
 });
 
-
 router.get("/:id", async (req, res) => {
   const user_id = req.params.id;
   const user = await User.findById(user_id);
@@ -17,7 +16,6 @@ router.get("/:id", async (req, res) => {
 });
 
 router.post("/register", async (req, res) => {
-  console.log(req.body);
   const newUser = new User({
     username: req.body.data.username,
     email: req.body.data.email,
@@ -76,7 +74,10 @@ router.delete("/:id", async (req, res) => {
     if (!user) {
       return res.status(404).send("User not found");
     }
-    res.send({ message: "User account deleted successfully", userId: req.params.id });
+    res.send({
+      message: "User account deleted successfully",
+      userId: req.params.id,
+    });
   } catch (error) {
     console.error("Error in DELETE route:", error);
     res.status(500).send("An error occurred while deleting the user");
