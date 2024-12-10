@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CircleUserRound } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 export default function Navbar() {
@@ -19,6 +20,9 @@ export default function Navbar() {
 
           <NavLink className="md:ml-8 text-lg md:my-0 my-7" to="/admin">
             Admin
+          </NavLink>
+          <NavLink className="md:ml-8 text-lg md:my-0 my-7" to="/profile">
+            <CircleUserRound />
           </NavLink>
         </div>
       </nav>

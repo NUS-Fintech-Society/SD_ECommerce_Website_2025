@@ -7,6 +7,7 @@ import Home from "./components/Home";
 import Landing from "./components/LandingPage";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
+import Profile from "./components/Profile";
 import "./index.css";
 
 const router = createBrowserRouter([
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
                 path: "/signup", // Login page route
                 element: <Signup />,
             },
+            {
+                path:"/profile",
+                element:<Profile />
+            }
         ],
     },
     {

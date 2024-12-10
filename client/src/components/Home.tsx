@@ -130,7 +130,7 @@ const Home = () => {
     //fetchAllUsers();
     //fetchUserById("60d21b4667d0d8992e610c85"); // Replace with a valid user ID
     //checkoutCart();
-    //sendEmail("vijay75011@gmail.com"); //Replace with user email address
+    // sendEmail("vijay75011@gmail.com"); //Replace with user email address
   }, []);
   return (
     <>
