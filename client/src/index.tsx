@@ -9,6 +9,7 @@ import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Profile from "./components/Profile";
 import "./index.css";
+import EditProfile from "./components/EditProfile";
 
 const router = createBrowserRouter([
     {
@@ -33,8 +34,12 @@ const router = createBrowserRouter([
             },
             {
                 path:"/profile",
-                element:<Profile />
-            }
+                element:<Profile />,
+            },
+            {
+                path:"/profile/edit",
+                element:<EditProfile />,
+            },
         ],
     },
     {

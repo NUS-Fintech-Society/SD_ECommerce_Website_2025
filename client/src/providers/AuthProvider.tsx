@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode, Dispatch, useReducer } from 'react';
+import { createContext, useContext, ReactNode, Dispatch, useReducer, useEffect, useState } from 'react';
 
 export interface User {
     _id: string;
@@ -38,14 +38,24 @@ export const authReducer = (state: State, action: Action) => {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+    // Initialize state from localStorage
     const [state, dispatch] = useReducer(authReducer, {
-        user: null
+        user: JSON.parse(localStorage.getItem('user') || 'null') 
     });
+    //reminder to remove from local storage when logging out
+
+    useEffect(() => {
+        if (state.user) {
+            localStorage.setItem('user', JSON.stringify(state.user));
+        } else {
+            localStorage.removeItem('user');
+        }
+    }, [state.user]);
   
     return (
-      <AuthContext.Provider value={{ user: state.user, dispatch }}>
-        {children}
-      </AuthContext.Provider>
+        <AuthContext.Provider value={{ user: state.user, dispatch }}>
+            {children}
+        </AuthContext.Provider>
     );
 }
 
