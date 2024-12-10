@@ -1,11 +1,12 @@
 import { createContext, useContext, ReactNode, Dispatch, useReducer } from 'react';
 
-interface User {
-  name: string;
-  email: string;
-  isAdmin?: boolean;
-  isSuperAdmin?: boolean;
-}
+export interface User {
+    _id: string;
+    username: string;
+    email: string;
+    isAdmin: boolean;
+    isSuperAdmin: boolean;
+  }
 
 interface AuthContextType {
   user: User | null;
@@ -38,11 +39,7 @@ export const authReducer = (state: State, action: Action) => {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [state, dispatch] = useReducer(authReducer, {
-      //temporary user
-        user: {
-        name: "John Doe",
-        email: "john@example.com"
-      }
+        user: null
     });
   
     return (
@@ -50,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         {children}
       </AuthContext.Provider>
     );
-  }
+}
 
 export function useAuth() {
   const context = useContext(AuthContext);

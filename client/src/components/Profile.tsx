@@ -1,8 +1,10 @@
 import React from 'react'
+import { useAuth } from '../providers/AuthProvider';
 
 function Profile() {
+    const {user} = useAuth();
   return (
-    <div>Profile</div>
+    <div>{user?.username}</div>
   )
 }
 
