@@ -84,4 +84,45 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+router.post("/update/:id", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    // Validate incoming data
+    if (!req.body.name || !req.body.email) {
+      return res.status(400).send("Name and email are required");
+    }
+
+    // Update fields from request body
+    user.username = req.body.name;
+    user.email = req.body.email;
+    
+    // If you're adding address support
+    if (req.body.address) {
+      user.address = req.body.address;
+    }
+    
+    await user.save();
+    
+    res.send({
+      message: "Profile updated successfully",
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        address: user.address // If you're adding address support
+      }
+    });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    if (error.name === 'ValidationError') {
+      return res.status(400).send(error.message);
+    }
+    res.status(500).send("An error occurred while updating the user");
+  }
+});
+
 module.exports = router;
