@@ -68,7 +68,7 @@ function EditProfile() {
                 
                 if (isEmailChange && verificationToken) {
                     // Create verification URL
-                    const verificationUrl = `http://localhost:5001/verify/email/${verificationToken}`;
+                    const verificationUrl = `http://localhost:5001/verify/email/${verificationToken}`; //to be replaced with actual domain
                     
                     // Send verification email
                     const emailResponse = await apiRequest("email", "POST", "send", {
