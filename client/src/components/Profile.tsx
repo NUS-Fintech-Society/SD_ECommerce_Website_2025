@@ -1,12 +1,23 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useAuth } from '../providers/AuthProvider';
 import { Link } from 'react-router-dom';
 import { UserPen } from 'lucide-react';
+import { apiRequest } from '../api/apiRequest';
 
 function Profile() {
-    const {user} = useAuth();
+    const {user, dispatch} = useAuth();
     const name = user?.username;
     const email = user?.email;
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const response = await apiRequest("users", "GET", `${user?._id}`);
+            if (response.success) {
+                dispatch({ type: "LOGIN", payload: response.data });
+            }
+        }
+        fetchUserData();
+    }, []);
 
     return (
         <div className="max-w-4xl mt-8 mx-3">

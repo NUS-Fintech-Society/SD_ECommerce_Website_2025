@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../providers/AuthProvider';
 import { Trash2 } from 'lucide-react';
 import { apiRequest } from '../api/apiRequest';
+import { useNavigate } from 'react-router-dom';
 
 interface ProfileFormData {
     firstName: string;
@@ -12,6 +13,8 @@ interface ProfileFormData {
 
 function EditProfile() {
     const { user, dispatch } = useAuth();
+    const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
     console.log(user);
     const firstName = user?.username?.split(' ')[0] || '';
     const lastName = user?.username?.split(' ').slice(1).join(' ') || '';
@@ -43,7 +46,7 @@ function EditProfile() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+        setIsLoading(true);
         const isEmailChange = formData.email !== user?.email;
         const formattedFormData = {
             name: `${formData.firstName} ${formData.lastName}`.trim(),
@@ -92,11 +95,13 @@ function EditProfile() {
     
                     if (emailResponse.success) {
                         alert("Please check your new email for verification.");
+                        navigate('/profile');
                     } else {
                         alert("Failed to send verification email. Please try again.");
                     }
                 } else {
                     alert("Profile updated successfully!");
+                    navigate('/profile');
                 }
             } else {
                 alert(response.message || "Failed to update profile");
@@ -200,9 +205,17 @@ function EditProfile() {
                     <div className="flex justify-end mt-8">
                         <button
                             type="submit"
-                            className="bg-green-500 text-white px-8 py-2 rounded-full hover:bg-green-600"
+                            disabled={isLoading}
+                            className="bg-green-500 text-white px-8 py-2 rounded-full hover:bg-green-600 disabled:bg-green-300 disabled:cursor-not-allowed"
                         >
-                            Confirm
+                            {isLoading ? (
+                                <svg className="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                ) : (
+                                'Confirm'
+                            )}
                         </button>
                     </div>
                 </form>
