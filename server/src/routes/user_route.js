@@ -1,5 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
+const { UserVerification } = require("../models/userVerification");
+const crypto = require('crypto');
 const mongoose = require("mongoose");
 const { User } = require("../models/user");
 const router = express.Router();
@@ -91,36 +93,48 @@ router.post("/update/:id", async (req, res) => {
       return res.status(404).send("User not found");
     }
 
-    // Validate incoming data
-    if (!req.body.name || !req.body.email) {
-      return res.status(400).send("Name and email are required");
-    }
+    const isEmailChange = req.body.email && req.body.email !== user.email;
 
-    // Update fields from request body
+    // Update non-email fields immediately
     user.username = req.body.name;
-    user.email = req.body.email;
-    
-    // If you're adding address support
-    if (req.body.address) {
-      user.address = req.body.address;
-    }
-    
     await user.save();
-    
-    res.send({
-      message: "Profile updated successfully",
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        address: user.address // If you're adding address support
-      }
-    });
+
+    if (isEmailChange) {
+      // Generate verification token
+      const verificationToken = crypto.randomBytes(32).toString('hex');
+
+      const newUserVerification = new UserVerification({
+        userId: user._id,
+        email: req.body.email,
+        verificationToken,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+      });
+      
+      // Store pending email change in separate collection
+      await newUserVerification.save();
+
+      res.send({
+        message: "Please check your new email for verification.",
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email, // Still the old email
+          verificationToken: verificationToken
+        }
+      });
+
+    } else {
+      res.send({
+        message: "Profile updated successfully",
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email
+        }
+      });
+    }
   } catch (error) {
     console.error("Error updating user:", error);
-    if (error.name === 'ValidationError') {
-      return res.status(400).send(error.message);
-    }
     res.status(500).send("An error occurred while updating the user");
   }
 });
