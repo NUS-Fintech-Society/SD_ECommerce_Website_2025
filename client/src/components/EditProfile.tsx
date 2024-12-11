@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../providers/AuthProvider';
 import { Trash2 } from 'lucide-react';
+import { apiRequest } from '../api/apiRequest';
 
 interface ProfileFormData {
     firstName: string;
@@ -10,8 +11,10 @@ interface ProfileFormData {
   }
 
 function EditProfile() {
-    const { user } = useAuth();
-    const [firstName, lastName] = user?.username?.split(' ') || ['', ''];
+    const { user, dispatch } = useAuth();
+    console.log(user);
+    const firstName = user?.username?.split(' ')[0] || '';
+    const lastName = user?.username?.split(' ').slice(1).join(' ') || '';
 
     const [formData, setFormData] = useState<ProfileFormData>({
         firstName: firstName || '',
@@ -19,6 +22,16 @@ function EditProfile() {
         email: user?.email || '',
         address: user?.address || ''
     });
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const response = await apiRequest("users", "GET", `${user?._id}`);
+            if (response.success) {
+                dispatch({ type: "LOGIN", payload: response.data });
+            }
+        }
+        fetchUserData();
+    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -28,12 +41,73 @@ function EditProfile() {
         }));
     };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Add API call to update profile
-    console.log('Form submitted:', formData);
-    //TODO: update auth provider
-  };
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        const isEmailChange = formData.email !== user?.email;
+        const formattedFormData = {
+            name: `${formData.firstName} ${formData.lastName}`.trim(),
+            email: formData.email,
+        }
+        
+        try {
+            const response = await apiRequest(
+                "users",
+                "POST",
+                `update/${user?._id}`,
+                formattedFormData
+            );
+    
+            if (response.success) {
+                console.log(response.data);
+                const verificationToken = response.data?.data?.verificationToken;
+                console.log("Token:",verificationToken);
+                
+                if (isEmailChange && verificationToken) {
+                    // Create verification URL
+                    const verificationUrl = `http://localhost:5001/verify/email/${verificationToken}`;
+                    
+                    // Send verification email
+                    const emailResponse = await apiRequest("email", "POST", "send", {
+                        to: formData.email,
+                        subject: "Email Verification Required",
+                        text: `Please verify your new email address by clicking this link: ${verificationUrl}`,
+                        html: `
+                            <h1>Email Verification Required</h1>
+                            <p>Please click the button below to verify your new email address:</p>
+                            <a href="${verificationUrl}" 
+                               style="background-color: #4CAF50; 
+                                      color: white; 
+                                      padding: 14px 20px; 
+                                      text-decoration: none; 
+                                      border-radius: 4px;
+                                      display: inline-block;">
+                                Verify Email
+                            </a>
+                            <p>Or copy and paste this link in your browser:</p>
+                            <p>${verificationUrl}</p>
+                            <p>This link will expire in 24 hours.</p>
+                        `
+                    });
+    
+                    if (emailResponse.success) {
+                        alert("Please check your new email for verification.");
+                    } else {
+                        alert("Failed to send verification email. Please try again.");
+                    }
+                } else {
+                    alert("Profile updated successfully!");
+                }
+            } else {
+                alert(response.message || "Failed to update profile");
+            }
+    
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            alert("An error occurred while updating your profile");
+        }
+
+    };
 
     return (
         <div className="max-w-4xl mx-3 mt-8">

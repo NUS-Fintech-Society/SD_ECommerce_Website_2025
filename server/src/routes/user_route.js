@@ -88,15 +88,17 @@ router.delete("/:id", async (req, res) => {
 
 router.post("/update/:id", async (req, res) => {
   try {
+    const {data: {name, email}} = req.body;
+
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).send("User not found");
     }
 
-    const isEmailChange = req.body.email && req.body.email !== user.email;
+    const isEmailChange = email && email !== user.email;
 
     // Update non-email fields immediately
-    user.username = req.body.name;
+    user.username = name;
     await user.save();
 
     if (isEmailChange) {
@@ -105,7 +107,7 @@ router.post("/update/:id", async (req, res) => {
 
       const newUserVerification = new UserVerification({
         userId: user._id,
-        email: req.body.email,
+        email: email,
         verificationToken,
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
       });
@@ -115,7 +117,7 @@ router.post("/update/:id", async (req, res) => {
 
       res.send({
         message: "Please check your new email for verification.",
-        user: {
+        data: {
           id: user.id,
           username: user.username,
           email: user.email, // Still the old email
@@ -126,7 +128,7 @@ router.post("/update/:id", async (req, res) => {
     } else {
       res.send({
         message: "Profile updated successfully",
-        user: {
+        data: {
           id: user.id,
           username: user.username,
           email: user.email
