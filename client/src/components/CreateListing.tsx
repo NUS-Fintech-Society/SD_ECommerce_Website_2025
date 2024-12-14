@@ -12,11 +12,7 @@ const CreateListing = () => {
     // Step 0: Active Listings
     const navigate = useNavigate();
     const [errorMessage, setErrorMessage] = useState("");
-    const [currentStep, setCurrentStep] = useState(3); 
-
-    const handleAddListingClick = () => {
-        setCurrentStep(1); // Switch to "Create a new Listing" UI
-    };
+    const [currentStep, setCurrentStep] = useState(0); 
 
     const handleCancelClick = () => {
         setCurrentStep(0); // Switch back to the "Active Listings" UI
@@ -243,7 +239,7 @@ const CreateListing = () => {
     };
 
     // Step 5: Review and Submit
-    const AddListing = async () => {
+    const handlePostListingClick = async () => {
         try {
             const response = await apiRequest("listings", "POST", "register", {
                 title: title,
@@ -582,7 +578,7 @@ const CreateListing = () => {
                         <button className="cancel-button" onClick={handleCancelClick}>
                             Cancel
                         </button>
-                        <button className="continue-button" onClick={() => console.log("Submit")}>
+                        <button className="continue-button" onClick={handlePostListingClick}>
                             Post Listing
                         </button>
                     </div>
