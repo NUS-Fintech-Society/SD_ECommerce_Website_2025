@@ -66,15 +66,69 @@
 .listings-grid {
     padding-top: 25px;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr); /* Default: 3 per row */
     gap: 16px;
+    width: 100%;
 }
-  
+
+@media screen and (max-width: 1024px) {
+    .listings-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 per row on tablets */
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .listings-grid {
+        grid-template-columns: 1fr; /* 1 per row on mobile */
+    }
+}
+
+/* Grid Layout for Empty Boxes */
+.empty-boxes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 columns */
+    gap: 1rem;
+}
+
+/* Individual Empty Box Styles */
 .empty-box {
-    background-color: #e5e7eb;
-    height: 250px;
+    background: #e0e0e0;
+    aspect-ratio: 1 / 0.8; /* Maintains a square shape */
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    color: #777;
+    font-weight: bold;
+    text-transform: uppercase;
 }
-  
+
+/* Listing Preview Image Styles */
+.listing-preview-image {
+    width: 100%;                
+    height: auto;               
+    max-height: 150px;        
+    object-fit: cover;          
+    border-radius: 8px;       
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+}
+
+.listing-box {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.listing-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
 .input-title,
 .textarea-description {
     display: block;

@@ -239,20 +239,63 @@ const CreateListing = () => {
     };
 
     // Step 5: Review and Submit
+    type Listing = {
+        title: string;
+        description: string;
+        images: File[];
+        specifications: { colour: string; size: string; quantity: string }[];
+        deliveryMethods: { shipping: boolean; selfCollection: boolean };
+        collectionInfo: string;
+    };
+    const [listings, setListings] = useState<Listing[]>([]);
+    
+    /*
+    const handlePostListingClick = () => {
+        setListings((prev) => [
+            ...prev,
+            {
+                title,
+                description,
+                images,
+                specifications,
+                deliveryMethods,
+                collectionInfo,
+            },
+        ]);
+        
+        navigate("/admin");
+        setCurrentStep(0); // Return to default page
+    }
+    */
     const handlePostListingClick = async () => {
         try {
             const response = await apiRequest("listings", "POST", "register", {
-                title: title,
-                description: description,
-                images: images,
-                sizingChart: sizingChart,
-                specifications: specifications,
-                deliveryMethods: deliveryMethods,
-                collectionInfo: collectionInfo,
+                title,
+                description,
+                images,
+                sizingChart,
+                specifications,
+                deliveryMethods,
+                collectionInfo,
             });
             if (response.success) {
                 console.log("Listing added successfully!");
+                
+                // Save the listing locally
+                setListings((prev) => [
+                    ...prev,
+                    {
+                        title,
+                        description,
+                        images,
+                        specifications,
+                        deliveryMethods,
+                        collectionInfo,
+                    },
+                ]);
+                
                 navigate("/admin");
+                setCurrentStep(0); // Return to default page
             } else {
                 console.error("Failed to add listing:", response.message);
             }
@@ -273,12 +316,22 @@ const CreateListing = () => {
                         <button className="add-listing-button" onClick={() => setCurrentStep(1)}>Add Listing</button>
                     </div>
                     <div className="listings-grid">
-                        <div className="empty-box"></div>
-                        <div className="empty-box"></div>
-                        <div className="empty-box"></div>
-                        <div className="empty-box"></div>
-                        <div className="empty-box"></div>
-                        <div className="empty-box"></div>
+                        {listings.length > 0 ? (
+                        listings.map((listing, index) => (
+                            <div key={index} className="listing-box">
+                                <h3 className="listing-title">{listing.title}</h3>
+                                {listing.images.length > 0 && (
+                                    <img
+                                        src={URL.createObjectURL(listing.images[0])}
+                                        alt={listing.title}
+                                        className="listing-preview-image"
+                                    />
+                                )}
+                            </div>
+                            ))
+                        ) : (
+                            <p></p>
+                        )}
                     </div>
                 </div>
             );
@@ -534,7 +587,7 @@ const CreateListing = () => {
         case 5:
             return (
                 <div className="listings-container">
-                    <h2 className="font-bold">Review and Submit</h2>
+                    <h2 className="font-bold">Preview Listing</h2>
                     <div className="review-container">
                         <h3 className="font-semi-bold">Title</h3>
                         <p>{title}</p>
