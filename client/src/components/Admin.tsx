@@ -1,7 +1,12 @@
 import React from "react";
+import CreateListing from "./CreateListing";
 
 const Admin = () => {
-    return <div>ELEOS Admin Page</div>;
+    return ( 
+        <div>
+            <CreateListing />
+        </div>
+    );
 };
 
 export default Admin;
