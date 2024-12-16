@@ -10,63 +10,66 @@ import Signup from "./components/Signup";
 import Profile from "./components/Profile";
 import "./index.css";
 import EditProfile from "./components/EditProfile";
+import { ChakraProvider } from "@chakra-ui/react";
 
 const router = createBrowserRouter([
-    {
-        path: "/",
-        element: <App />,
-        children: [
-            {
-                path: "/", // Landing page route
-                element: <Landing />,
-            },
-            {
-                path: "/home",
-                element: <Home />,
-            },
-            {
-                path: "/login", // Login page route
-                element: <Login />,
-            },
-            {
-                path: "/signup", // Login page route
-                element: <Signup />,
-            },
-            {
-                path:"/profile",
-                element:<Profile />,
-            },
-            {
-                path:"/profile/edit",
-                element:<EditProfile />,
-            },
-        ],
-    },
-    {
+  {
+    path: "/",
+    element: <App />,
+    children: [
+      {
+        path: "/", // Landing page route
+        element: <Landing />,
+      },
+      {
+        path: "/home",
+        element: <Home />,
+      },
+      {
+        path: "/login", // Login page route
+        element: <Login />,
+      },
+      {
+        path: "/signup", // Login page route
+        element: <Signup />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
+      },
+      {
+        path: "/profile/edit",
+        element: <EditProfile />,
+      },
+    ],
+  },
+  {
+    path: "/admin",
+    element: <App />,
+    children: [
+      {
         path: "/admin",
-        element: <App />,
-        children: [
-            {
-                path: "/admin",
-                element: <Admin />,
-            },
-        ],
-    },
-    //Example on creating new path
-    // {
-    //     path: "/{new_path}",
-    //     element: <App />,
-    //     children: [
-    //         {
-    //             path: "/{new_path}",
-    //             element: {file_name},
-    //         },
-    //     ],
-    // },
+        element: <Admin />,
+      },
+    ],
+  },
+  //Example on creating new path
+  // {
+  //     path: "/{new_path}",
+  //     element: <App />,
+  //     children: [
+  //         {
+  //             path: "/{new_path}",
+  //             element: {file_name},
+  //         },
+  //     ],
+  // },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-    <React.StrictMode>
-        <RouterProvider router={router} />
-    </React.StrictMode>
+  <React.StrictMode>
+    <ChakraProvider>
+      <RouterProvider router={router} />
+    </ChakraProvider>
+  </React.StrictMode>
 );
