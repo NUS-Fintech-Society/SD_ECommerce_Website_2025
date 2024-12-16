@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@metamodules/postgres": "^1.2.1",
+    "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "deploy-node-app": "^1.4.3",

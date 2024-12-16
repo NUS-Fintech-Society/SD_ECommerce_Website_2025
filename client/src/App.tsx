@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import { AuthProvider } from "./providers/AuthProvider";
 
 const App = () => {
   const location = useLocation();
@@ -7,10 +8,12 @@ const App = () => {
   const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname);
 
   return (
-    <div className="w-full pt-4">
-      {shouldShowNavbar && <Navbar />}
-      <Outlet />
-    </div>
+    <AuthProvider>
+      <div className="w-full pt-4">
+        {shouldShowNavbar && <Navbar />}
+        <Outlet />
+      </div>
+    </AuthProvider>
   );
 };
 

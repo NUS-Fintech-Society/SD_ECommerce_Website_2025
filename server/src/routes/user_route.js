@@ -1,5 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
+const { UserVerification } = require("../models/userVerification");
+const crypto = require('crypto');
 const mongoose = require("mongoose");
 const { User } = require("../models/user");
 const router = express.Router();
@@ -81,6 +83,61 @@ router.delete("/:id", async (req, res) => {
   } catch (error) {
     console.error("Error in DELETE route:", error);
     res.status(500).send("An error occurred while deleting the user");
+  }
+});
+
+router.post("/update/:id", async (req, res) => {
+  try {
+    const {data: {name, email}} = req.body;
+
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    const isEmailChange = email && email !== user.email;
+
+    // Update non-email fields immediately
+    user.username = name;
+    await user.save();
+
+    if (isEmailChange) {
+      // Generate verification token
+      const verificationToken = crypto.randomBytes(32).toString('hex');
+
+      const newUserVerification = new UserVerification({
+        userId: user._id,
+        email: email,
+        verificationToken,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+      });
+      
+      // Store pending email change in separate collection
+      await newUserVerification.save();
+
+      res.send({
+        message: "Please check your new email for verification.",
+        data: {
+          id: user.id,
+          username: user.username,
+          email: user.email, // Still the old email
+          verificationToken: verificationToken
+        }
+      });
+
+    } else {
+      res.send({
+        message: "Profile updated successfully",
+        data: {
+          id: user.id,
+          username: user.username,
+          email: user.email
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).send("An error occurred while updating the user");
   }
 });
 

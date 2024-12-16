@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { CircleUserRound } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../providers/AuthProvider";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const {user} = useAuth();
   return (
     <div className="shadow-md w-full p-1">
       <nav className="flex justify-center items-center mb-6">
@@ -19,6 +22,10 @@ export default function Navbar() {
 
           <NavLink className="md:ml-8 text-lg md:my-0 my-7" to="/admin">
             Admin
+          </NavLink>
+          <NavLink className="md:ml-8 text-lg md:my-0 my-7 flex flex-row items-center gap-2" to="/profile">
+            <CircleUserRound />
+            <p>{user?.username}</p>
           </NavLink>
         </div>
       </nav>
