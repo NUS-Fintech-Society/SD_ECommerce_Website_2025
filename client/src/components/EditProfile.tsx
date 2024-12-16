@@ -3,6 +3,7 @@ import { useAuth } from '../providers/AuthProvider';
 import { Trash2 } from 'lucide-react';
 import { apiRequest } from '../api/apiRequest';
 import { useNavigate } from 'react-router-dom';
+import ProfileModal from './ProfileModal';
 
 interface ProfileFormData {
     firstName: string;
@@ -18,6 +19,11 @@ function EditProfile() {
     console.log(user);
     const firstName = user?.username?.split(' ')[0] || '';
     const lastName = user?.username?.split(' ').slice(1).join(' ') || '';
+    const [modalState, setModalState] = useState({
+        isOpen: false,
+        title: "",
+        message: ""
+    });
 
     const [formData, setFormData] = useState<ProfileFormData>({
         firstName: firstName || '',
@@ -94,24 +100,49 @@ function EditProfile() {
                     });
     
                     if (emailResponse.success) {
-                        alert("Please check your new email for verification.");
-                        navigate('/profile');
+                        setModalState({
+                            isOpen: true,
+                            title: "Success",
+                            message: `Please verify your new email address at ${formData.email}`
+                        });
                     } else {
-                        alert("Failed to send verification email. Please try again.");
+                        setModalState({
+                            isOpen: true,
+                            title: "Error",
+                            message: "Please try again."
+                        });
                     }
                 } else {
-                    alert("Profile updated successfully!");
-                    navigate('/profile');
+                    setModalState({
+                        isOpen: true,
+                        title: "Success",
+                        message: "Profile updated successfully!"
+                    });
                 }
             } else {
-                alert(response.message || "Failed to update profile");
+                setModalState({
+                    isOpen: true,
+                    title: "Error",
+                    message: response.message || "Failed to update profile"
+                });
             }
     
         } catch (error) {
             console.error("Error updating profile:", error);
-            alert("An error occurred while updating your profile");
+            setModalState({
+                isOpen: true,
+                title: "Failed to update profile",
+                message: "An error occurred while updating your profile"
+            });
         }
 
+    };
+
+    const handleCloseModal = () => {
+        setModalState(prev => ({ ...prev, isOpen: false }));
+        if (modalState.title === 'Success') {
+            navigate('/profile');
+        }
     };
 
     return (
@@ -219,6 +250,14 @@ function EditProfile() {
                         </button>
                     </div>
                 </form>
+
+                <ProfileModal 
+                isOpen={modalState.isOpen} 
+                onClose={handleCloseModal}
+                title={modalState.title}
+            >
+                <p>{modalState.message}</p>
+            </ProfileModal>
             </div>
         </div>
     );
