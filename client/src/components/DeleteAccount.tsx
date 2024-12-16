@@ -26,6 +26,9 @@ function DeleteAccount() {
   const [inputCode, setInputCode] = useState("");
   const [error, setError] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
+  const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   // Generate a random 4-digit code
   const generateRandomCode = () => {
@@ -53,23 +56,25 @@ function DeleteAccount() {
 
     setIsDeleting(true);
     try {
-      const response = await apiRequest("users", "DELETE", `delete/${user?._id}`);
+      const response = await apiRequest("users", "DELETE", `${user?._id}`);
 
       if (response.success) {
-        alert("Your account has been successfully deleted. Redirecting to the landing page...");
+        setIsSuccessDialogOpen(true); // Open success dialog
         setTimeout(() => {
           dispatch({
             type: "LOGOUT",
             payload: null
           });
           navigate("/");
-        }, 5000);
+        }, 3000); // Redirect after showing success dialog
       } else {
-        alert(response.message || "Failed to delete account.");
+        setErrorMessage(response.message || "Failed to delete account.");
+        setIsErrorDialogOpen(true); // Open error dialog
       }
     } catch (error) {
       console.error("Error deleting account:", error);
-      alert("An error occurred while deleting your account.");
+      setErrorMessage("An error occurred while deleting your account.");
+      setIsErrorDialogOpen(true); // Open error dialog
     } finally {
       setIsDeleting(false);
       onClose();
@@ -87,7 +92,7 @@ function DeleteAccount() {
         <span>Delete Account</span>
       </button>
 
-      {/* AlertDialog */}
+      {/* Main Delete Account Confirmation AlertDialog */}
       <AlertDialog
         isOpen={isOpen}
         leastDestructiveRef={cancelRef}
@@ -136,6 +141,50 @@ function DeleteAccount() {
               >
                 Delete
               </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+
+      {/* Success Modal */}
+      <AlertDialog
+        isOpen={isSuccessDialogOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={() => setIsSuccessDialogOpen(false)}
+        isCentered
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold" color="green.500">
+              Account Deleted
+            </AlertDialogHeader>
+            <AlertDialogBody>
+              <Text>Your account has been successfully deleted.</Text>
+            </AlertDialogBody>
+            <AlertDialogFooter>
+              <Button onClick={() => setIsSuccessDialogOpen(false)}>Close</Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+
+      {/* Error Modal */}
+      <AlertDialog
+        isOpen={isErrorDialogOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={() => setIsErrorDialogOpen(false)}
+        isCentered
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold" color="red.500">
+              Error
+            </AlertDialogHeader>
+            <AlertDialogBody>
+              <Text>{errorMessage}</Text>
+            </AlertDialogBody>
+            <AlertDialogFooter>
+              <Button onClick={() => setIsErrorDialogOpen(false)}>Close</Button>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialogOverlay>
