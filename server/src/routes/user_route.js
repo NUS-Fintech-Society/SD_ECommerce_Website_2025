@@ -88,7 +88,7 @@ router.delete("/:id", async (req, res) => {
 
 router.post("/update/:id", async (req, res) => {
   try {
-    const {data: {name, email}} = req.body;
+    const {data: {name, email, address}} = req.body;
 
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -99,6 +99,7 @@ router.post("/update/:id", async (req, res) => {
 
     // Update non-email fields immediately
     user.username = name;
+    user.address = address;
     await user.save();
 
     if (isEmailChange) {

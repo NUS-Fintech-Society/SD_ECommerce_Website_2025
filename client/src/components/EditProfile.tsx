@@ -50,6 +50,12 @@ function EditProfile() {
         }));
     };
 
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        e.preventDefault();
+        const file = e.target.files?.[0];
+        
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
@@ -74,7 +80,7 @@ function EditProfile() {
                 
                 if (isEmailChange && verificationToken) {
                     // Create verification URL
-                    const verificationUrl = `http://localhost:5001/verify/email/${verificationToken}`; //to be replaced with actual domain
+                    const verificationUrl = `${process.env.REACT_APP_API_URL}/verify/email/${verificationToken}`;
                     
                     // Send verification email
                     const emailResponse = await apiRequest("email", "POST", "send", {
