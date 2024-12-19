@@ -15,7 +15,6 @@ interface ProfileFormData {
 
 function EditProfile() {
     const { user, dispatch } = useAuth();
-    console.log(user);
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const firstName = user?.username?.split(' ')[0] || '';
@@ -26,7 +25,6 @@ function EditProfile() {
         message: ""
     });
     const [previewUrl, setPreviewUrl] = useState<string>(user?.profilePicture || '');
-
     const [formData, setFormData] = useState<ProfileFormData>({
         firstName: firstName || '',
         lastName: lastName || '',
@@ -90,7 +88,6 @@ function EditProfile() {
     
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     
-
     const compressImage = async (file: File): Promise<string> => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -122,7 +119,7 @@ function EditProfile() {
                     const ctx = canvas.getContext('2d');
                     ctx?.drawImage(img, 0, 0, width, height);
                     
-                    // Adjust quality here (0.6 = 60% quality)
+                    // For Reference: Adjust quality here (0.6 = 60% quality)
                     const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
                     resolve(compressedBase64);
                 };
@@ -142,7 +139,6 @@ function EditProfile() {
             address: formData.address,
             profilePicture: formData.profilePicture
         }
-        
         try {
             const response = await apiRequest(
                 "users",
@@ -255,14 +251,12 @@ function EditProfile() {
                         <div className="flex flex-col items-center space-y-4">
                             <div className="w-48 h-48 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
                             {previewUrl ? (
-                                // Show preview URL if available
                                 <img
                                     src={previewUrl}
                                     alt="Profile Preview"
                                     className="w-full h-full object-cover"
                                 />
                             ) : (
-                                // Show default SVG if no profile picture is available
                                 <svg
                                     className="w-24 h-24 text-gray-400"
                                     viewBox="0 0 24 24"
@@ -286,7 +280,7 @@ function EditProfile() {
                             <button
                                 type="button"
                                 className="text-gray-600 hover:text-gray-800 bg-gray-100 px-4 py-2 rounded-md"
-                                onClick={() => fileInputRef.current?.click()} // Trigger file input
+                                onClick={() => fileInputRef.current?.click()}
                             >
                                 Upload new photo
                             </button>
