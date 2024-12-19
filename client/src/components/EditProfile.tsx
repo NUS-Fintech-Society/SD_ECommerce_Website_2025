@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../providers/AuthProvider';
-import { Trash2 } from 'lucide-react';
 import { apiRequest } from '../api/apiRequest';
 import { useNavigate } from 'react-router-dom';
 import ProfileModal from './ProfileModal';
+import DeleteAccount from './DeleteAccount';
 
 interface ProfileFormData {
     firstName: string;
@@ -237,13 +237,7 @@ function EditProfile() {
             {/* Main Content */}
             <div className="bg-white p-8 rounded-b-lg shadow-md relative">
                 {/* Delete Account Button */}
-                <button
-                    onClick={()=>{}}
-                    className="absolute top-8 right-8 text-red-500 flex items-center gap-2 hover:text-red-600"
-                >
-                    <Trash2 size={20} />
-                    <span>Delete Account</span>
-                </button>
+                <DeleteAccount />
 
                 <form onSubmit={handleSubmit} className="mt-8">
                     <div className="flex gap-12">
