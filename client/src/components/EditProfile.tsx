@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../providers/AuthProvider';
 import { Trash2 } from 'lucide-react';
 import { apiRequest } from '../api/apiRequest';
@@ -10,13 +10,14 @@ interface ProfileFormData {
     lastName: string;
     email: string;
     address: string;
+    profilePicture: string;
   }
 
 function EditProfile() {
     const { user, dispatch } = useAuth();
+    console.log(user);
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
-    console.log(user);
     const firstName = user?.username?.split(' ')[0] || '';
     const lastName = user?.username?.split(' ').slice(1).join(' ') || '';
     const [modalState, setModalState] = useState({
@@ -24,12 +25,14 @@ function EditProfile() {
         title: "",
         message: ""
     });
+    const [previewUrl, setPreviewUrl] = useState<string>(user?.profilePicture || '');
 
     const [formData, setFormData] = useState<ProfileFormData>({
         firstName: firstName || '',
         lastName: lastName || '',
         email: user?.email || '',
-        address: user?.address || ''
+        address: user?.address || '',
+        profilePicture: user?.profilePicture || ''
     });
 
     useEffect(() => {
@@ -42,6 +45,18 @@ function EditProfile() {
         fetchUserData();
     }, []);
 
+    useEffect(() => {
+        const releaseProfilePicture = async () => {
+            return () => {
+                if (previewUrl) {
+                    URL.revokeObjectURL(previewUrl);
+                }
+            };
+        }
+        releaseProfilePicture();
+    }, [previewUrl]);
+
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -50,11 +65,72 @@ function EditProfile() {
         }));
     };
 
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        e.preventDefault();
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        
-    }
+        if (file) {
+            const previewUrl = URL.createObjectURL(file);
+            setPreviewUrl(previewUrl);
+            const base64Image = await compressImage(file);
+            console.log(base64Image);
+            setFormData(prev => ({
+                ...prev,
+                profilePicture: base64Image as string
+            }));    
+        }
+    };
+
+    const handleDeleteProfilePicture = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        setFormData(prev => ({
+            ...prev,
+            profilePicture: ''
+        }));
+        setPreviewUrl('');
+    };
+    
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    
+
+    const compressImage = async (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target?.result as string;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800;
+                    const MAX_HEIGHT = 800;
+                    let width = img.width;
+                    let height = img.height;
+    
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+    
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx?.drawImage(img, 0, 0, width, height);
+                    
+                    // Adjust quality here (0.6 = 60% quality)
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+                    resolve(compressedBase64);
+                };
+            };
+            reader.onerror = (error) => reject(error);
+        });
+    };
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -63,6 +139,8 @@ function EditProfile() {
         const formattedFormData = {
             name: `${formData.firstName} ${formData.lastName}`.trim(),
             email: formData.email,
+            address: formData.address,
+            profilePicture: formData.profilePicture
         }
         
         try {
@@ -175,14 +253,50 @@ function EditProfile() {
                     <div className="flex gap-12">
                         {/* Profile Picture Section */}
                         <div className="flex flex-col items-center space-y-4">
-                            <div className="w-48 h-48 bg-gray-200 rounded-full flex items-center justify-center">
-                                <svg className="w-24 h-24 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <div className="w-48 h-48 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+                            {previewUrl ? (
+                                // Show preview URL if available
+                                <img
+                                    src={previewUrl}
+                                    alt="Profile Preview"
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                // Show default SVG if no profile picture is available
+                                <svg
+                                    className="w-24 h-24 text-gray-400"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                >
                                     <circle cx="12" cy="8" r="5" />
                                     <path d="M20 21a8 8 0 10-16 0" />
                                 </svg>
+                                )}
                             </div>
-                            <button type="button" className="text-gray-600 hover:text-gray-800 bg-gray-100 px-4 py-2 rounded-md">
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleImageUpload}
+                            />
+
+                            {/* Upload Button */}
+                            <button
+                                type="button"
+                                className="text-gray-600 hover:text-gray-800 bg-gray-100 px-4 py-2 rounded-md"
+                                onClick={() => fileInputRef.current?.click()} // Trigger file input
+                            >
                                 Upload new photo
+                            </button>
+
+                            {/* Delete Button */}
+                            <button
+                                onClick={handleDeleteProfilePicture}
+                                className="text-red-500 hover:text-red-600"
+                            >
+                                Delete Picture
                             </button>
                         </div>
 
