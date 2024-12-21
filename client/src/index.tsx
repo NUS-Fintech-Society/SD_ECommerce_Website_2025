@@ -12,6 +12,7 @@ import "./index.css";
 import EditProfile from "./components/EditProfile";
 import { ChakraProvider } from "@chakra-ui/react";
 
+
 const router = createBrowserRouter([
   {
     path: "/",
