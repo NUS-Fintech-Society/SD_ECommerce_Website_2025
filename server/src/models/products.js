@@ -9,38 +9,27 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  price: {
-    type: Number,
-    required: true,
+  images: [{
+    type: String, // Assuming images are stored as URLs
+    required: true
+  }],
+  sizingChart: [{
+    type: String, // Assuming images are stored as URLs
+    required: true
+  }],
+  specifications: [{
+    colour: { type: String, required: true },
+    size: { type: String, required: true },
+    quantity: { type: String, required: true }
+  }],
+  deliveryMethods: {
+    shipping: { type: Boolean, required: true },
+    selfCollection: { type: Boolean, required: true }
   },
-  discountPercentage: {
-    type: Number,
-    required: true,
-  },
-  rating: {
-    type: Number,
-    required: true,
-  },
-  stock: {
-    type: Number,
-    required: true,
-  },
-  brand: {
+  collectionInfo: {
     type: String,
     required: true,
-  },
-  category: {
-    type: String,
-    required: true,
-  },
-  thumbnail: {
-    type: String,
-    required: true,
-  },
-  images: {
-    type: String,
-    required: true,
-  },
+  }
 });
 
 const Product = mongoose.model("Product", productSchema);

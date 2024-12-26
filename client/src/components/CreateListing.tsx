@@ -269,7 +269,7 @@ const CreateListing = () => {
     */
     const handlePostListingClick = async () => {
         try {
-            const response = await apiRequest("listings", "POST", "register", {
+            const response = await apiRequest("product", "POST", "create", {
                 title,
                 description,
                 images,
