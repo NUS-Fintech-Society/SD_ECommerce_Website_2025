@@ -8,6 +8,8 @@ function Profile() {
     const {user, dispatch} = useAuth();
     const name = user?.username;
     const email = user?.email;
+    const address = user?.address;
+    const profilePicture = user?.profilePicture;
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -34,10 +36,14 @@ function Profile() {
                     {/* Profile Picture Section */}
                     <div className="flex flex-col items-center space-y-4">
                         <div className="w-48 h-48 bg-gray-200 rounded-full flex items-center justify-center">
-                            <svg className="w-24 h-24 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <circle cx="12" cy="8" r="5" />
-                                <path d="M20 21a8 8 0 10-16 0" />
-                            </svg>
+                            {profilePicture ? (
+                                <img src={profilePicture} alt="Profile" className="w-full h-full object-cover rounded-full" />
+                            ) : (
+                                <svg className="w-24 h-24 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <circle cx="12" cy="8" r="5" />
+                                    <path d="M20 21a8 8 0 10-16 0" />
+                                </svg>
+                            )}
                         </div>
                     </div>
 
@@ -91,6 +97,7 @@ function Profile() {
                                     readOnly
                                     className="w-full p-3 border rounded-lg bg-gray-50"
                                     placeholder="type here.."
+                                    value={address || ''}   
                                 />
                             </div>
                         </div>

@@ -7,6 +7,7 @@ export interface User {
     isAdmin: boolean;
     isSuperAdmin: boolean;
     address?: string;
+    profilePicture?: string;
   }
 
 interface AuthContextType {

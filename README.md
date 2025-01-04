@@ -56,8 +56,8 @@ Before running the project, you need to create `.env` files for both the server 
 ### Setting up Google Account App Password
 
 1. Under your Google Account > Security: Enable 2FA
-2. Under 2FA, create app password to generate 16 character password
-3. Copy this password without any spaces into SMTP_PASS in .env file
+2. Under Google Account, search for "app password" > create app password to generate 16 character password
+3. Copy the generated 16 character password without any spaces into SMTP_PASS in .env file
 
 ### Running the project
 
