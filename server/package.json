@@ -20,6 +20,9 @@
     "stripe": "^17.2.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.26.4",
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
     "babel-eslint": "10.0.1",
     "concurrently": "^4.1.0",
     "cross-spawn": "^6.0.5",
@@ -36,7 +39,7 @@
   },
   "scripts": {
     "start": "node src/index.js",
-    "build": "react-scripts build",
+    "build": "babel src -d dist",
     "deploy": "deploy-node-app",
     "test": "react-scripts test",
     "eject-www": "react-scripts eject"
