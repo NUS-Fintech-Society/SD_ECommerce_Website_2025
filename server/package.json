@@ -39,7 +39,7 @@
   },
   "scripts": {
     "start": "node src/index.js",
-    "build": "babel src -d dist",
+    "build": "babel src -d build",
     "deploy": "deploy-node-app",
     "test": "react-scripts test",
     "eject-www": "react-scripts eject"
