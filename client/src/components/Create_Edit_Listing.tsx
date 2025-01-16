@@ -1,14 +1,29 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../Create_Edit_Listing.css";
 import { apiRequest } from "../api/apiRequest";
 import { useNavigate } from "react-router-dom";
+import DeleteListing_Drafts from "./DeleteListing_Drafts";
+import { isTemplateExpression } from "typescript";
+// import {
+//   AlertDialog,
+//   AlertDialogBody,
+//   AlertDialogFooter,
+//   AlertDialogHeader,
+//   AlertDialogContent,
+//   AlertDialogOverlay,
+//   Button,
+//   Input,
+//   Text,
+//   useDisclosure,
+// } from "@chakra-ui/react";
 
 type Listing = {
+  _id?: string; // Optional because it might not exist for new listings
   title: string;
   description: string;
   images: File[]; // Assuming images are files (e.g., from input type="file")
-  specifications: { colour: string; size: string; quantity: number }[];
+  sizingChart: File[];
+  specifications: { colour: string; size: string; quantity: string }[];
   deliveryMethods: {
     shipping: boolean;
     selfCollection: boolean;
@@ -18,9 +33,11 @@ type Listing = {
 
 type Drafts = {
   title: string;
+  _id?: string;
   description: string;
   images: File[]; // Assuming images are files (e.g., from input type="file")
-  specifications: { colour: string; size: string; quantity: number }[];
+  sizingChart: File[];
+  specifications: { colour: string; size: string; quantity: string }[];
   deliveryMethods: {
     shipping: boolean;
     selfCollection: boolean;
@@ -28,17 +45,13 @@ type Drafts = {
   collectionInfo: string;
 };
 
-const CreateListing = () => {
-  // 0: Active Listings, 1: Title and Description,
-  // 2: Upload Images, 3: Specifications,
-  // 4: Shipping Information, 5: Review and Submit
+// Fetch listings from the backend
 
-  // Step 0: Active Listings
+const CreateListing = () => {
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [errorMessage, setErrorMessage] = useState("");
   const [currentStep, setCurrentStep] = useState(0); // Track the current step of the UI
   const navigate = useNavigate();
-  const [errorMessage, setErrorMessage] = useState("");
-  const [listings, setListings] = useState<Listing[]>([]); // List of listings
-  const [newListing, setNewListing] = useState(""); // Input for new listing name (string)
   const [title, setTitle] = useState(""); // Title input
   const [description, setDescription] = useState(""); // Description input
   const [drafts, setDrafts] = useState<Drafts[]>([]);
@@ -48,6 +61,41 @@ const CreateListing = () => {
     null
   );
   const [isDraft, setIsDraft] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const fetchListings = async () => {
+    try {
+      const response = await apiRequest("listings", "GET", "");
+      if (response.success) {
+        // Store the listings in the state
+        setListings(response.data); // Assuming `response.data` contains the listings
+      } else {
+        setErrorMessage(response.message || "Failed to fetch listings.");
+      }
+    } catch (error) {
+      setErrorMessage("An error occurred while fetching listings.");
+    }
+  };
+
+  const fetchDrafts = async () => {
+    try {
+      const response = await apiRequest("drafts", "GET", "");
+      if (response.success) {
+        // Store the listings in the state
+        setDrafts(response.data); // Assuming `response.data` contains the listings
+      } else {
+        setErrorMessage(response.message || "Failed to fetch drafts");
+      }
+    } catch (error) {
+      setErrorMessage("An error occurred while fetching drafts");
+    }
+  };
+
+  useEffect(() => {
+    fetchListings(); // Fetch the listings from MongoDB when the component mounts
+    fetchDrafts();
+  }, []);
 
   const handleItemClick = (item: Listing | Drafts, isDraft: boolean) => {
     setSelectedItem(item);
@@ -66,6 +114,8 @@ const CreateListing = () => {
     setDeliveryMethods({ shipping: false, selfCollection: false }); // Reset delivery methods
     setCollectionInfo(""); // Clear additional collection info
     setSelectedItem(null);
+    setIsEditing(false);
+    window.location.reload();
     setCurrentStep(0); // Switch back to the "Active Listings" UI
   };
 
@@ -74,50 +124,24 @@ const CreateListing = () => {
     setCurrentStep(currentStep - 1); // previous step
   };
 
-const [showDeleteModal, setShowDeleteModal] = useState(false);
-const [deleteCode, setDeleteCode] = useState("");
-const [confirmationCode, setConfirmationCode] = useState("");
-const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
-
-const generateRandomCode = () => Math.floor(1000 + Math.random() * 9000).toString();
-
-const confirmDelete = () => {
-  if (confirmationCode === deleteCode) {
-    // Proceed with deletion
-    if (viewDrafts) {
-      setDrafts(drafts.filter((draft) => draft !== selectedItem)); // Delete from drafts
-    } else {
-      setListings(listings.filter((listing) => listing !== selectedItem)); // Delete from listings
-    }
-    setSelectedItem(null); 
-    setShowDeleteModal(false); // Close the modal
-    setConfirmationCode(""); // Reset the input
-    goBackToList();
-  } else {
-    alert("Incorrect code. Deletion cancelled.");
-  }
-};
-  
-
-  const handleDeleteClick = (item: Listing |  Drafts) => {
-    const code = generateRandomCode();
-    setDeleteCode(code); // Set the generated code
-    // setDeleteIndex(index); // Store the index of the item to be deleted
+  const handleDeleteClick = (item: Listing | Drafts) => {
     setShowDeleteModal(true); // Open the modal
   };
 
-  const handleEditClick = (item: Listing |  Drafts ) => {
+  const handleEditClick = (item: Listing | Drafts) => {
+    setIsEditing(true);
     setTitle(item.title); // Pre-fill title
     setDescription(item.description); // Pre-fill description
     setImages(item.images || []); // Pre-fill images (if any)
     setSpecifications(item.specifications || []); // Pre-fill specifications (if any)
-    setDeliveryMethods(item.deliveryMethods || { shipping: false, selfCollection: false });
+    setDeliveryMethods(
+      item.deliveryMethods || { shipping: false, selfCollection: false }
+    );
     setCollectionInfo(item.collectionInfo || ""); // Pre-fill additional info
     setCurrentStep(1); // Navigate to Step 1 (Create a new Listing UI)
   };
-  
 
-  // Step 1: Active Listings
+  // Step 1: Title and Description
 
   const handleContinueAfterTitleAndDescClick = () => {
     if (title === "") {
@@ -238,8 +262,8 @@ const confirmDelete = () => {
   const [size, setSize] = useState("");
   const [quantity, setQuantity] = useState("");
   const [specifications, setSpecifications] = useState<
-    { colour: string; size: string; quantity: number }[]
-  >([]); // Specs input
+    { colour: string; size: string; quantity: string }[]
+  >([{ colour: "", size: "", quantity: "" }]); // Initialize with one empty spec
 
   const handleAddMoreClick = () => {
     if (colour.length > 60) {
@@ -260,10 +284,14 @@ const confirmDelete = () => {
       );
       return;
     }
+    // if (isNaN( parseInt(quantity, 10)) || parseInt(quantity, 10)<0) {
+    //   setErrorMessage("Please enter a valid quantity.");
+    //   return; // Don't add to the specifications if the quantity is invalid
+    // }
     setErrorMessage(""); // Clear error message
     setSpecifications((prev) => [
       ...prev,
-      { colour, size, quantity: parseInt(quantity, 10) }, // Convert quantity to number
+      { colour, size, quantity }, // Convert quantity to number
     ]);
     setColour("");
     setSize("");
@@ -353,12 +381,13 @@ const confirmDelete = () => {
   };
 
   // Step 5: Review and Submit
-  const handlePostListingClick = () => {
+  const handlePostListingClick = async () => {
     if (title.trim() !== "" && description.trim() !== "") {
       const newListingDetails: Listing = {
         title,
         description,
         images,
+        sizingChart,
         specifications,
         deliveryMethods,
         collectionInfo,
@@ -366,52 +395,148 @@ const confirmDelete = () => {
 
       // Add the new listing details to the listings array
       setListings([...listings, newListingDetails]);
-      setNewListing(""); // Clear the new listing input field after submission
+
+      // Clear the input fields after submission
+      // setNewListing(""); // Clear the new listing input field
       setTitle(""); // Clear the title
       setDescription(""); // Clear the description
       setImages([]); // Clear images
+      setSizingChart([]);
       setSpecifications([]); // Clear specifications
       setDeliveryMethods({ shipping: false, selfCollection: false }); // Reset delivery methods
       setCollectionInfo(""); // Clear additional collection info
+
+      try {
+        // Send the new listing to the backend
+        const response = await apiRequest(
+          "listings",
+          "POST",
+          "create",
+          newListingDetails
+        );
+        window.location.reload();
+
+        // Handle the response (success or failure)
+        if (!response.success) {
+          setErrorMessage(response.message || "Failed to post the listing");
+        }
+      } catch (error) {
+        setErrorMessage("An error occurred while posting the listing.");
+      }
     } else {
-      setErrorMessage("Please try again");
+      setErrorMessage("Please fill in all required fields.");
     }
   };
 
-  const handlePostDrafts = (item: Drafts) => {
+  const handleSaveChangesClick = async (item: Listing | Drafts) => {
+    // Construct the new data object for either a listing or draft
+    const newData = {
+      title: title,
+      description: description,
+      images: images,
+      sizingChart: sizingChart,
+      specifications: specifications,
+      deliveryMethods: deliveryMethods,
+      collectionInfo: collectionInfo,
+    };
 
+    try {
+      // Determine the correct collection based on the type of selectedItem
+      const collection = !isDraft ? "listings" : "drafts";
+
+      // Call the API to save the changes
+      const response = await apiRequest(
+        collection,
+        "PUT", // Use "POST" or the appropriate HTTP method for updates
+        `update/${selectedItem?._id}`,
+        newData
+      );
+
+      if (response.success) {
+        console.log("Changes saved successfully:", response.data);
+      } else {
+        console.error("Failed to save changes:", response.message);
+      }
+    } catch (error) {
+      console.error("Error saving changes:", error);
+    }
+
+    setIsEditing(false);
+    window.location.reload();
+  };
+
+  const handlePostDrafts = async (item: Drafts) => {
     // Use the current values from the state to build the new listing
     const newListingDetails: Listing = {
       title: item.title, // Use the item data directly instead of state
       description: item.description,
       images: item.images || [],
+      sizingChart: item.sizingChart || [],
       specifications: item.specifications || [],
-      deliveryMethods: item.deliveryMethods || { shipping: false, selfCollection: false },
+      deliveryMethods: item.deliveryMethods || {
+        shipping: false,
+        selfCollection: false,
+      },
       collectionInfo: item.collectionInfo || "",
     };
-  
-    // Add the new listing to the listings array
-    setListings((prevListings) => [...prevListings, newListingDetails]);
-  
-    // Clear the input fields and reset the state
-    setNewListing(""); 
-    setTitle(""); 
-    setDescription(""); 
-    setImages([]); 
-    setSpecifications([]); 
+
+    try {
+      // Send the new listing to the backend
+      const response = await apiRequest(
+        "listings",
+        "POST",
+        "create",
+        newListingDetails
+      );
+      window.location.reload();
+
+      // Handle the response (success or failure)
+      if (!response.success) {
+        setErrorMessage(response.message || "Failed to post the listing");
+      }
+    } catch (error) {
+      setErrorMessage("An error occurred while posting the listing.");
+    }
+
+    try {
+      // Determine API endpoint based on the item type (draft or listing)
+      const response = await apiRequest(
+        "drafts",
+        "DELETE",
+        `delete/${item._id}`
+      );
+
+      if (response.success) {
+        setTimeout(() => {
+          // setSelectedItem(null);
+          // fetchListings();
+          window.location.reload();
+          navigate("/admin");
+        }, 1000); // Redirect after showing success dialog
+      }
+    } catch (error) {
+      console.error("Error deleting item:", error);
+    }
+
+    setTitle("");
+    setDescription("");
+    setImages([]);
+    setSizingChart([]);
+    setSpecifications([]);
     setDeliveryMethods({ shipping: false, selfCollection: false });
-    setCollectionInfo(""); 
-  
+    setCollectionInfo("");
+
     // Delete the selected draft after posting
-    setDrafts(drafts.filter((draft) => draft !== item))
+    // setDrafts(drafts.filter((draft) => draft !== item))
   };
-  
-  const handleDraftsClick = () => {
+
+  const handleDraftsClick = async () => {
     if (title.trim() !== "" && description.trim() !== "") {
       const newDraftDetails: Drafts = {
         title,
         description,
         images,
+        sizingChart,
         specifications,
         deliveryMethods,
         collectionInfo,
@@ -423,9 +548,27 @@ const confirmDelete = () => {
       setTitle(""); // Clear the title
       setDescription(""); // Clear the description
       setImages([]); // Clear images
+      setSizingChart([]);
       setSpecifications([]); // Clear specifications
       setDeliveryMethods({ shipping: false, selfCollection: false }); // Reset delivery methods
       setCollectionInfo(""); // Clear additional collection info
+      try {
+        // Send the new listing to the backend
+        const response = await apiRequest(
+          "drafts",
+          "POST",
+          "create",
+          newDraftDetails
+        );
+        window.location.reload();
+
+        // Handle the response (success or failure)
+        if (!response.success) {
+          setErrorMessage(response.message || "Failed to post the draft");
+        }
+      } catch (error) {
+        setErrorMessage("An error occurred while posting the draft.");
+      }
     } else {
       setErrorMessage("Please try again");
     }
@@ -433,9 +576,9 @@ const confirmDelete = () => {
 
   const renderStep = () => {
     switch (currentStep) {
-    case 0:
-    if (!selectedItem) {
-        return (
+      case 0:
+        if (!selectedItem) {
+          return (
             <div className="listings-container">
               <div className="listings-header">
                 <h2 className="society-name">NUS Fintech Society</h2>
@@ -446,9 +589,75 @@ const confirmDelete = () => {
                   Create Listing
                 </button>
               </div>
-  
-              {/* Listings Grid */}
-              <div className="listings-grid">
+
+              <div className="listings-and-drafts-container">
+                {/* Drafts Section */}
+                <div
+                  className={`drafts-container ${
+                    viewDrafts ? "full-screen" : ""
+                  }`}
+                >
+                  {!viewDrafts ? (
+                    <div
+                      className="drafts-overview"
+                      onClick={() => setViewDrafts(true)} // Show detailed drafts on click
+                    >
+                      <h2 className="font-bold">Drafts</h2>
+                      <p>Click to view and manage your drafts</p>
+                    </div>
+                  ) : (
+                    <div className="listings-grid">
+                      <div className="drafts-header">
+                        <h2 className="font-bold">Your Drafts</h2>
+                        <button
+                          className="back-button"
+                          onClick={() => setViewDrafts(false)}
+                        >
+                          Back
+                        </button>
+                      </div>
+
+           
+                        {drafts.length > 0 ? (
+                          drafts.map((draft, index) => (
+                            <div
+                              key={index}
+                              onClick={() => handleItemClick(draft, true)}
+                              className="draft-box"
+                            >
+                              <h3>{draft.title}</h3>
+                              <p>{draft.description}</p>
+                              {/* Display images */}
+                              {draft.images && draft.images.length > 0 ? (
+                                <div className="draft-images">
+                                  {draft.images.map((image, idx) => {
+                                    const imageUrl =
+                                      image instanceof File
+                                        ? URL.createObjectURL(image)
+                                        : image;
+                                    return (
+                                      <img
+                                        key={idx}
+                                        src={imageUrl}
+                                        alt={`draft-image-${idx}`}
+                                        className="draft-image"
+                                      />
+                                    );
+                                  })}
+                                </div>
+                              ) : (
+                                <p>No images available</p>
+                              )}
+                            </div>
+                          ))
+                        ) : (
+                          <div>No drafts available</div>
+                        )}
+                      </div>
+                  )}
+                </div>
+
+                {/* Listings Section */}
                 {listings.length > 0 ? (
                   listings.map((listing, index) => (
                     <div
@@ -456,8 +665,8 @@ const confirmDelete = () => {
                       onClick={() => handleItemClick(listing, false)}
                       className="listing-box"
                     >
-                      <h3>{listing.title}</h3> {/* Display title */}
-                      <p>{listing.description}</p> {/* Display description */}
+                      <h3>{listing.title}</h3>
+                      <p>{listing.description}</p>
                       {/* Display images */}
                       {listing.images && listing.images.length > 0 ? (
                         <div className="listing-images">
@@ -482,258 +691,165 @@ const confirmDelete = () => {
                     </div>
                   ))
                 ) : (
-                  <div> </div>
+                  <div>{errorMessage || "No listings available"}</div>
                 )}
               </div>
-  
-              {/* Drafts Section */}
-              <div className={`drafts-container ${viewDrafts ? "full-screen" : ""}`}>
-              {!viewDrafts ? (
-                <div
-                  className="drafts-overview"
-                  onClick={() => setViewDrafts(true)} // Show detailed drafts on click
-                >
-                  <h2 className="font-bold">Drafts</h2>
-                  <p>Click to view and manage your drafts</p>
-                </div>
-              ) : (
-                <div className="drafts-grid">
-                  <div className="drafts-header">
-                  <h2 className="font-bold">Your Drafts</h2>
-                  <button
-                    className="back-button"
-                    onClick={() => setViewDrafts(false)} // Go back to overview
-                  >
-                    Back
-                  </button>
-                </div>
-              
-                  {drafts.length > 0 ? (
-                    drafts.map((draft, index) => (
-                      <div
-                        key={index}
-                        onClick={() => handleItemClick(draft, true)}
-                        className="draft-box"
-                      >
-                        <h3>{draft.title}</h3> {/* Display title */}
-                        <p>{draft.description}</p> {/* Display description */}
-                        {/* Display images */}
-                        {draft.images && draft.images.length > 0 ? (
-                          <div className="draft-images">
-                            {draft.images.map((image, idx) => {
-                              const imageUrl =
-                                image instanceof File
-                                  ? URL.createObjectURL(image)
-                                  : image;
-                              return (
-                                <img
-                                  key={idx}
-                                  src={imageUrl}
-                                  alt={`draft-image-${idx}`}
-                                  className="draft-image"
-                                />
-                              );
-                            })}
-                          </div>
-                        ) : (
-                          <p>No images available</p>
-                        )}
-                      </div>
-                    ))
-                  ) : (
-                    <div></div>
-                  )}
-                  </div>
-                  )}
-                </div>
-              </div>
-            );
-          }
-
-    const renderSpecifications = () => {
-        return selectedItem?.specifications?.length > 0 ? (
-        <ul>
-            {selectedItem.specifications.map((spec, idx) => (
-            <li key={idx}>
-                Colour: {spec.colour}, Size: {spec.size}, Quantity: {spec.quantity}
-            </li>
-            ))}
-        </ul>
-        ) : (
-        <p>No specifications available</p>
-        );
-    };
-
-    const renderDeliveryMethods = () => (
-        <>
-        <p>Shipping: {selectedItem?.deliveryMethods?.shipping ? "Yes" : "No"}</p>
-        <p>
-            Self-Collection: {selectedItem?.deliveryMethods?.selfCollection ? "Yes" : "No"}
-        </p>
-        </>
-    );
-
-    const renderImages = () => (
-        selectedItem?.images?.length > 0 ? (
-        <div className="detailed-images">
-            {selectedItem.images.map((image, idx) => {
-            const imageUrl = image instanceof File
-                ? URL.createObjectURL(image)
-                : image;
-            return (
-                <img
-                key={idx}
-                src={imageUrl}
-                alt={`image-${idx}`}
-                className="detailed-image"
-                />
-            );
-            })}
-        </div>
-        ) : (
-        <p>No images available</p>
-        )
-    );
-
-    return (
-        <div className="detailed-view">
-        {/* Buttons */}
-
-        {
-          !viewDrafts ? (
-            <>
-              {listings.map((item, index) => (
-                <div key={index} onClick={() => handleItemClick(item,false)}>
-                </div>
-              ))}
-              
-
-              {selectedItem && (
-                <button
-                  className="back-button"
-                  onClick={() => handleEditClick(selectedItem)} // Edit the selected item
-                >
-                  Edit Listing
-                </button>
-              )}
-
-              {selectedItem && (
-                <button
-                  className="back-button"
-                  onClick={() => handleDeleteClick(selectedItem)} // Delete the selected item
-                >
-                  Delete Listing
-                </button>
-              )}
-            </>
-          ) : (
-            <>
-              {/* Render drafts */}
-              {drafts.map((item, index) => (
-                <div key={index} onClick={() => handleItemClick(item, true)}>
-
-                </div>
-              ))}
-              
-
-              {selectedItem && (
-                <button
-                  className="back-button"
-                  onClick={() => handleEditClick(selectedItem)} // Edit the selected draft
-                >
-                  Edit Draft
-                </button>
-              )}
-    
-
-              {selectedItem && (
-                <>
-                  <button
-                    className="back-button"
-                    onClick={() => handleDeleteClick(selectedItem)} // Delete the selected draft
-                  >
-                    Delete Draft
-                  </button>
-                </>
-              )}     
-              
-              {selectedItem && (
-                <button
-                className="back-button"
-                onClick={() => {
-                  handlePostDrafts(selectedItem); // Uncomment this if needed
-                  goBackToList(); // Navigate back to the list
-                  setViewDrafts(false); // Hide the drafts view
-                }}
-              >
-                Post Draft
-              </button>
-              )}
-            </>
-          )
+            </div>
+          );
         }
-        
-                  
-        <button className="back-button" onClick={goBackToList}>Cancel</button>
 
-        {showDeleteModal && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <h2>Are you sure?</h2>
-              <p>
-                Deleting this {viewDrafts ? "draft" : "listing"} is a destructive action
-                and cannot be undone.
-              </p>
-              <p>Please type in the following code to confirm deletion:</p>
-              <h3 className="delete-code">{deleteCode}</h3>
-              <input
-                type="text"
-                placeholder="Enter the code here"
-                value={confirmationCode}
-                onChange={(e) => setConfirmationCode(e.target.value)}
-              />
-              <button className="confirm-button" onClick={confirmDelete}>
-                Confirm
-              </button>
-              <button className="cancel-button" onClick={() => setShowDeleteModal(false)}>
+        return (
+          <div className="detailed-view">
+            {/* Buttons */}
+
+            <div className="action-buttons">
+              {!viewDrafts ? (
+                <>
+                  <div className="button-group">
+                    <button
+                      className="back-button"
+                      onClick={() => handleEditClick(selectedItem)} // Edit the selected item
+                    >
+                      Edit Listing
+                    </button>
+
+                    {/* DeleteListing_Drafts button inside a div */}
+                    {selectedItem && (
+                      <div className="delete-button-wrapper">
+                        <DeleteListing_Drafts
+                          itemId={selectedItem?._id}
+                          itemType="listing"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Render drafts */}
+                  {drafts.map((item, index) => (
+                    <div
+                      key={index}
+                      onClick={() => handleItemClick(item, true)}
+                    ></div>
+                  ))}
+
+                  <div className="button-group">
+                    <button
+                      className="back-button"
+                      onClick={() => handleEditClick(selectedItem)} // Edit the selected draft
+                    >
+                      Edit Draft
+                    </button>
+
+                    {/* DeleteListing_Drafts button inside a div */}
+                    {selectedItem && (
+                      <div className="delete-button-wrapper">
+                        <DeleteListing_Drafts
+                          itemId={selectedItem?._id}
+                          itemType="draft"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+
+              {/* Cancel Button */}
+              <button className="back-button" onClick={goBackToList}>
                 Cancel
               </button>
             </div>
+
+            {/* Item Details to be displayed when clicked in*/}
+            <div className="listing-container">
+              <div className="image-container">
+                <div className="image-preview">
+                  {selectedItem.images.map((image, index) => (
+                    <img
+                      key={index}
+                      src={URL.createObjectURL(image)}
+                      alt={`preview-${index}`}
+                      className="main-image"
+                    />
+                  ))}
+                </div>
+                <div className="arrow-navigation">
+                  <button className="arrow left">&#x3C;</button>
+                  <button className="arrow right">&#x3E;</button>
+                </div>
+              </div>
+              <div className="details-container">
+                <h2 className="title">{selectedItem.title}</h2>
+                <p className="description">{selectedItem.description}</p>
+                <div className="options">
+                  <div className="option-group">
+                    <span className="label">Colour:</span>
+                    {selectedItem.specifications.map((spec, index) => (
+                      <button key={index} className={`option ${spec.colour}`}>
+                        {spec.colour}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="option-group">
+                    <span className="label">Size:</span>
+                    {selectedItem.specifications.map((spec, index) => (
+                      <button key={index} className={`option ${spec.size}`}>
+                        {spec.size}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="quantity-selector">
+                  <button className="qty-button">-</button>
+                  <span className="quantity">
+                    {selectedItem.specifications.map((spec, index) => (
+                      <button key={index} className={`option ${spec.quantity}`}>
+                        {spec.quantity}
+                      </button>
+                    ))}
+                  </span>
+                  <button className="qty-button">+</button>
+                </div>
+                <div className="shipping-options">
+                  <button
+                    className={`shipping-option ${
+                      selectedItem.deliveryMethods.shipping ? "active" : ""
+                    }`}
+                  >
+                    Shipping
+                  </button>
+                  <button
+                    className={`shipping-option ${
+                      selectedItem.deliveryMethods.selfCollection
+                        ? "active"
+                        : ""
+                    }`}
+                  >
+                    Collection
+                  </button>
+                </div>
+                {deliveryMethods.selfCollection && (
+                  <textarea className="collection-info-static">
+                    {selectedItem.collectionInfo}
+                  </textarea>
+                )}
+              </div>
+            </div>
           </div>
-        )}
-
-
-        {/* Item Details */}
-        <h2>{selectedItem.title}</h2>
-        <p>{selectedItem.description}</p>
-
-        {/* Images */}
-        {renderImages()}
-
-        {/* Specifications */}
-        <div>
-            <h3>Specifications</h3>
-            {renderSpecifications()}
-        </div>
-
-        {/* Delivery Methods */}
-        <div>
-            <h3>Delivery Methods</h3>
-            {renderDeliveryMethods()}
-        </div>
-
-        {/* Collection Info */}
-        <div>
-            <h3>Collection Information</h3>
-            <p>{selectedItem?.collectionInfo || "No collection info available"}</p>
-        </div>
-        </div>
-    );
+        );
 
       case 1:
         return (
           <div className="listings-container">
-            <h2 className="font-bold">Create a new Listing</h2>
+            <h2 className="font-bold">
+              {isEditing
+                ? isDraft
+                  ? "Edit Draft"
+                  : "Edit Listing"
+                : "Create a new Listing"}
+            </h2>
+
             <input
               type="text"
               placeholder="Input a title"
@@ -892,6 +1008,7 @@ const confirmDelete = () => {
               <h3>Quantity</h3>
             </div>
             <div className="specifications-container">
+              {/* Render mapped specification fields if there are items in the specifications array */}
               {specifications.map((spec, index) => (
                 <div key={index} className="specifications-row">
                   <input
@@ -928,6 +1045,7 @@ const confirmDelete = () => {
                 </div>
               ))}
             </div>
+
             <div className="add-more-button-container">
               <button className="add-more-button" onClick={handleAddMoreClick}>
                 + Add more
@@ -947,25 +1065,30 @@ const confirmDelete = () => {
             </div>
           </div>
         );
+
       case 4:
         return (
           <div className="listings-container">
             <h2 className="font-bold">Shipping</h2>
             <div className="delivery-methods">
-              <h3>Select your Delivery Method</h3>
-              <label>
+              <h2 className="delivery-methods-title">
+                Select your Delivery Method
+              </h2>
+              <label className="checkbox-label">
                 <input
                   type="checkbox"
                   checked={deliveryMethods.shipping}
                   onChange={() => handleCheckboxChange("shipping")}
+                  className="checkbox-input"
                 />
                 Shipping
               </label>
-              <label>
+              <label className="checkbox-label">
                 <input
                   type="checkbox"
                   checked={deliveryMethods.selfCollection}
                   onChange={() => handleCheckboxChange("selfCollection")}
+                  className="checkbox-input"
                 />
                 Self-collection
               </label>
@@ -998,70 +1121,131 @@ const confirmDelete = () => {
             </div>
           </div>
         );
+
       case 5:
         return (
-          <div className="listings-container">
-            <h2 className="font-bold">Review and Submit</h2>
-            <div className="review-container">
-              <h3 className="font-semi-bold">Title</h3>
-              <p>{title}</p>
-              <h3 className="font-semi-bold">Description</h3>
-              <p>{description}</p>
-              <h3 className="font-semi-bold">Images</h3>
-              <div className="images-preview">
+          <div className="listing-container">
+            <div className="image-container">
+              <div className="image-preview">
                 {images.map((image, index) => (
                   <img
                     key={index}
                     src={URL.createObjectURL(image)}
                     alt={`preview-${index}`}
-                    className="preview-image"
+                    className="main-image"
                   />
                 ))}
               </div>
-              <h3 className="font-semi-bold">Specifications</h3>
-              <div className="specifications-preview">
-                {specifications.map((spec, index) => (
-                  <div key={index} className="specifications-row">
-                    <p>Colour: {spec.colour}</p>
-                    <p>Size: {spec.size}</p>
-                    <p>Quantity: {spec.quantity}</p>
-                  </div>
-                ))}
+              <div className="arrow-navigation">
+                <button className="arrow left">&#x3C;</button>
+                <button className="arrow right">&#x3E;</button>
               </div>
-              <h3 className="font-semi-bold">Shipping</h3>
-              <p>
-                {deliveryMethods.shipping ? "Shipping" : ""}
-                {deliveryMethods.shipping && deliveryMethods.selfCollection
-                  ? ", "
-                  : ""}
-                {deliveryMethods.selfCollection ? "Self-collection" : ""}
-              </p>
-              {deliveryMethods.selfCollection && (
-                <div className="collection-info">
-                  <h4>Additional Information for Collection:</h4>
-                  <p>{collectionInfo}</p>
+            </div>
+            <div className="details-container">
+              <h2 className="title">{title}</h2>
+              <p className="description">{description}</p>
+              <div className="options">
+                <div className="option-group">
+                  <span className="label">Colour:</span>
+                  {specifications.map((spec, index) => (
+                    <button key={index} className={`option ${spec.colour}`}>
+                      {spec.colour}
+                    </button>
+                  ))}
                 </div>
+                <div className="option-group">
+                  <span className="label">Size:</span>
+                  {specifications.map((spec, index) => (
+                    <button key={index} className={`option ${spec.size}`}>
+                      {spec.size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="quantity-selector">
+                <button className="qty-button">-</button>
+                <span className="quantity">
+                  {specifications.map((spec, index) => (
+                    <button key={index} className={`option ${spec.quantity}`}>
+                      {spec.quantity}
+                    </button>
+                  ))}
+                </span>
+                <button className="qty-button">+</button>
+              </div>
+              <div className="shipping-options">
+                <button
+                  className={`shipping-option ${
+                    deliveryMethods.shipping ? "active" : ""
+                  }`}
+                >
+                  Shipping
+                </button>
+                <button
+                  className={`shipping-option ${
+                    deliveryMethods.selfCollection ? "active" : ""
+                  }`}
+                >
+                  Collection
+                </button>
+              </div>
+              {deliveryMethods.selfCollection && (
+                <textarea className="collection-info-static">
+                  {collectionInfo}
+                </textarea>
               )}
             </div>
             <div className="action-buttons">
-              <button
-                className="cancel-button"
-                onClick={() => {
-                  handleDraftsClick(); // Post the draft and go back to the active listings step
-                  setCurrentStep(0); // Navigate to the active listings UI
-                }}
-              >
-                Save to drafts
-              </button>
-              <button
-                className="continue-button"
-                onClick={() => {
-                  handlePostListingClick(); // Post the listing and go back to the active listings step
-                  setCurrentStep(0); // Navigate to the active listings UI
-                }}
-              >
-                Post Listing
-              </button>
+              {isEditing ? (
+                <>
+                  <button
+                    className="cancel-button"
+                    onClick={() => {
+                      if (selectedItem) {
+                        handleSaveChangesClick(selectedItem);
+                      } else {
+                        console.error("No item selected");
+                      }
+                      setCurrentStep(0);
+                    }}
+                  >
+                    Save Changes
+                  </button>
+                  <button
+                    className="continue-button"
+                    onClick={() => {
+                      handleCancelClick();
+                      setCurrentStep(0);
+                    }}
+                  >
+                    Cancel Editing
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button className="cancel-button" onClick={handleCancelClick}>
+                    Cancel
+                  </button>
+                  <button
+                    className="cancel-button"
+                    onClick={() => {
+                      handleDraftsClick();
+                      setCurrentStep(0);
+                    }}
+                  >
+                    Save to Drafts
+                  </button>
+                  <button
+                    className="continue-button"
+                    onClick={() => {
+                      handlePostListingClick();
+                      setCurrentStep(0);
+                    }}
+                  >
+                    Post Listing
+                  </button>
+                </>
+              )}
             </div>
           </div>
         );
@@ -1077,11 +1261,9 @@ const confirmDelete = () => {
         <div className="logo">ELEOS</div>
       </div>
       {/* Create Listing Steps */}
-      <div className="content-container">
-        {renderStep()}
-      </div>
+      <div className="content-container">{renderStep()}</div>
     </div>
   );
-}
+};
 
 export default CreateListing;

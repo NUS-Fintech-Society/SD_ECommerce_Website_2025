@@ -1,3 +1,199 @@
+.collection-info-static {
+    pointer-events: none;
+    cursor: default;
+  }
+  
+  .delete-button-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .delete-button-wrapper button, .delete-button-wrapper a {
+    padding: 10px 20px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  /* If DeleteListing_Drafts is an anchor or custom element */
+  .delete-button-wrapper a, .delete-button-wrapper .delete-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #dc3545;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+.shipping-option {
+    padding: 10px 20px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f4f4f9;
+    color: #333;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .shipping-option.active {
+    background-color: #007BFF;
+    color: #fff;
+    border-color: #007BFF;
+  }
+  
+  .shipping-option:hover {
+    background-color: #0056b3;
+    color: #fff;
+  }
+  
+
+.listing-container {
+    display: flex;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    gap: 20px;
+  }
+
+  .delete-wrapper{
+
+  }
+  
+  .image-container {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .image-preview {
+    width: 100%;
+    height: auto;
+    max-width: 300px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .main-image {
+    width: 100%;
+    height: auto;
+  }
+  
+  .arrow-navigation {
+    position: absolute;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .arrow {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 10px;
+  }
+  
+  .details-container {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .option-group {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .label  {
+    font-weight: bold;
+  }
+  
+  .option {
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+  }
+  
+  .stock {
+    font-size: 16px;
+  }
+  
+  .quantity-selector {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+  
+  .qty-button {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+  }
+  
+  .shipping-options {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .shipping-option {
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+  }
+  
+  .collection-info {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+  }
+  
+  .action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    height: 30px; 
+    align-items: center; /* Centers the content vertically */
+    padding: 5px 0; 
+    margin-top: auto;
+}
+
+  .edit-button, .delete-button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .edit-button {
+    background-color: #4caf50;
+    color: #fff;
+  }
+  
+  .delete-button {
+    background-color: #f44336;
+    color: #fff;
+  }
+  
+
 .admin-container {
     display: flex;
     flex-direction: column;
@@ -28,8 +224,19 @@
     margin: 20px; /* Add spacing around the white container */
   }
   
-
-
+  
+  .checkbox-label {
+    display: flex;
+    align-items: center; /* Aligns checkbox and text vertically */
+    margin-bottom: 10px;  /* Optional: Adds spacing between checkboxes */
+  }
+  
+  .checkbox-input {
+    width: 15px; /* Size of the checkbox */
+    height: 15px; /* Size of the checkbox */
+    margin-right: 10px;  /* Adds space between checkbox and text */
+  }
+  
 .searchbar {
     flex: 1;
     margin: 0 20px;
@@ -45,12 +252,22 @@
     font-weight: bold;
 }
 
-.listings-container {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    height: 100%;
+.listings-and-drafts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Same grid for both drafts and listings */
+    gap: 20px; /* Adds space between items */
+
+  }
+  
+
+.listing-container {
+  display: flex;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  gap: 20px;
 }
+  
 
 .listings-header {
     display: flex;
@@ -92,10 +309,11 @@
 
 
 .listings-grid {
-    display: flex;
-    flex-wrap: wrap; /* Wrap listings to the next line */
- 
-}
+    grid-column: 2 / 3; /* Position listings in the second column */
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Create a responsive grid for listings */
+    gap: 10px; /* Space between listings */
+  }
 
 .listing-box {
     width: 200px; /* Fixed width */
@@ -111,6 +329,7 @@
     transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
     padding: 20px;
     text-align: center; /* Ensure text is centered */
+    margin-bottom: 20px;
     }
 
 .listing-box:hover {
@@ -120,6 +339,10 @@
 .empty-box {
     background-color: #e5e7eb;
     height: 250px;
+}
+.title{
+    font-size: 20px;
+    font-weight: bold;
 }
 
 .input-title,
@@ -278,14 +501,16 @@
 
 .delivery-methods label {
     display: block;
-    margin: 10px 0;
+    margin: 20px 10;
     font-size: 18px;
+    margin-bottom: 10px;
 }
 
-.collection-info {
-    margin-top: 20px;
-    width: 100%;
-}
+.delivery-methods-title {
+    font-size: 20px;
+    margin-bottom: 20px; /* Adjust this value as needed */
+  }
+
 
 .collection-info-input {
     display: block;
@@ -365,7 +590,7 @@
     display: flex;
     flex-wrap: wrap; /* Wrap listings to the next line */
     grid-column: 1; /* Drafts always in the first column */
-    grid-row: 1 / span 2; /* Occupy rows next to listings */
+    grid-row: 1 ; /* Occupy rows next to listings */
     width: 200px; /* Fixed width */
     height: 200px; /* Fixed height to make it a square */
     background: linear-gradient(135deg, #e0e0e0, #b0b0b0); /* Gradient grey */
@@ -403,15 +628,20 @@
 
   
 .drafts-header {
-    display: flex;
-    justify-content: space-between; /* Ensures "Your Drafts" is on the left and "Back" is on the right */
+    position: fixed; /* Fixes the header at the top of the viewport */
+    top: 0; /* Aligns it to the very top of the screen */
+    left: 0; /* Ensures it starts from the left edge of the viewport */
+    width: 100%; /* Makes the header span the full width of the screen */
+    display: flex; /* Allows content to align in a row */
+    justify-content: space-between; /* "Your Drafts" on the left, "Back" on the right */
     align-items: center; /* Vertically aligns the content */
-    width: 100%; /* Make the header span the full width */
     padding: 10px 20px; /* Adds space around the content */
     background-color: #f7f7f7; /* Light background for header */
     border-bottom: 2px solid #ddd; /* Adds a separator below the header */
     box-sizing: border-box; /* Ensures padding doesn't affect width calculation */
+    z-index: 1000; /* Keeps the header on top of other elements */
 }
+
 
 .drafts-header h2 {
     margin: 0; /* Remove default margin for consistent alignment */
@@ -557,10 +787,7 @@
   
 
   .draft-box {
-    grid-row: 1 / span 2; /* Occupy rows next to listings */
-    width: 200px; /* Fixed width */
-    height: 200px; /* Fixed height to make it a square */
-    background: linear-gradient(135deg, #e0e0e0, #b0b0b0); /* Gradient grey */
+
     border-radius: 12px;
     display: flex;
     flex-direction: column;
@@ -571,7 +798,9 @@
     transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
     padding: 20px;
     text-align: center; /* Ensure text is centered */
-    }
+    width: 100%; /* Take full width of the grid cell */
+    height: 200px; /* Fixed height */
+}
   
   .draft-images {
     display: flex;
