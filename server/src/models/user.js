@@ -40,6 +40,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
+  adminRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'AdminRequest' }]
 });
 
 userSchema.methods.generateAuthToken = function () {

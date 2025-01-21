@@ -3,6 +3,7 @@ import { useAuth } from '../providers/AuthProvider';
 import { Link } from 'react-router-dom';
 import { UserPen } from 'lucide-react';
 import { apiRequest } from '../api/apiRequest';
+import { Tooltip } from 'react-tooltip';
 
 function Profile() {
     const {user, dispatch} = useAuth();
@@ -99,6 +100,19 @@ function Profile() {
                                     placeholder="type here.."
                                     value={address || ''}   
                                 />
+                            </div>
+                            {/* Request for Admin Button */}
+                            <div className="col-span-2 flex justify-end"> {/* Use col-span-2 to span across both columns */}
+                                <Link className="bg-gray-300 text-black px-6 py-2 rounded-full hover:bg-gray-400" to="/profile/adminRequest">
+                                    <button 
+                                        className="flex justify-center items-center"
+                                        data-tooltip-id='request'
+                                        data-tooltip-content="Click to request for admin access"
+                                    >
+                                        Request for Admin
+                                    </button>
+                                    <Tooltip id='request' />
+                                </Link>
                             </div>
                         </div>
                     </div>
