@@ -45,7 +45,7 @@ type Drafts = {
   collectionInfo: string;
 };
 
-// Fetch listings from the backend
+
 
 const CreateListing = () => {
   const [listings, setListings] = useState<Listing[]>([]);
@@ -680,7 +680,7 @@ const CreateListing = () => {
                       <h2 className="font-bold">Drafts</h2>
                       <p>Click to view and manage your drafts</p>
                     </div>
-                  ) : ( // Show drafts on click (attempting to use the same grid / UIUX as listing but not working)
+                  ) : ( // Show drafts on click 
                     <div className="listings-grid">
                       <div className="drafts-header">
                         <h2 className="font-bold">Your Drafts</h2>
@@ -692,8 +692,7 @@ const CreateListing = () => {
                         </button>
                       </div>
 
-                      //show individual drafts with cover page
-                      {drafts.length > 0 ? (
+                      {drafts.length > 0 ? (   //show individual drafts with cover page ((attempting to use the same grid / UIUX as listing but not working))
                         drafts.map((draft, index) => (
                           <div
                             key={index}
@@ -722,8 +721,8 @@ const CreateListing = () => {
                   )}
                 </div>
 
-                //show listings with cover page 
-                {listings.length > 0 ? (
+
+                {listings.length > 0 ? (                 // show listings with cover page 
                   listings.map((listing, index) => (
                     <div
                       key={index}
@@ -807,16 +806,17 @@ const CreateListing = () => {
                       </div>
                     )}
                   </div>
+                                {/* Post Draft Button */}
+              <button
+              className="back-button"
+              onClick={() => handlePostDrafts(selectedItem)}
+            >
+              Post Draft
+            </button>
                 </>
               )}
 
-              {/* Post Draft Button */}
-              <button
-                className="back-button"
-                onClick={() => handlePostDrafts(selectedItem)}
-              >
-                Post Draft
-              </button>
+
 
               {/* Cancel Button */}
               <button className="back-button" onClick={goBackToList}>
@@ -912,7 +912,7 @@ const CreateListing = () => {
           </div>
         );
 
-    //details usewr has to fill up to post a listing / draft. Case 1 - 5 are the different stages 
+    //details user has to fill up to post a listing / draft. Case 1 - 5 are the different stages 
       case 1:
         return (
           <div className="listings-container">
