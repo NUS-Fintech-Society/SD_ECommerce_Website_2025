@@ -21,8 +21,8 @@ type Listing = {
   _id?: string; // Optional because it might not exist for new listings
   title: string;
   description: string;
-  images: File[]; // Assuming images are files (e.g., from input type="file")
-  sizingChart: File[];
+  images: string[]; // Assuming images are files (e.g., from input type="file")
+  sizingChart: string[];
   specifications: { colour: string; size: string; quantity: string }[];
   deliveryMethods: {
     shipping: boolean;
@@ -35,8 +35,8 @@ type Drafts = {
   title: string;
   _id?: string;
   description: string;
-  images: File[]; // Assuming images are files (e.g., from input type="file")
-  sizingChart: File[];
+  images: string[]; // Assuming images are files (e.g., from input type="file")
+  sizingChart: string[];
   specifications: { colour: string; size: string; quantity: string }[];
   deliveryMethods: {
     shipping: boolean;
@@ -110,6 +110,7 @@ const CreateListing = () => {
     setTitle(""); // Clear the title
     setDescription(""); // Clear the description
     setImages([]); // Clear images
+    setSizingChart([]);
     setSpecifications([]); // Clear specifications
     setDeliveryMethods({ shipping: false, selfCollection: false }); // Reset delivery methods
     setCollectionInfo(""); // Clear additional collection info
@@ -132,7 +133,8 @@ const CreateListing = () => {
     setIsEditing(true);
     setTitle(item.title); // Pre-fill title
     setDescription(item.description); // Pre-fill description
-    setImages(item.images || []); // Pre-fill images (if any)
+    setImages(item.images); // Pre-fill images (if any)
+    setSizingChart(item.sizingChart);
     setSpecifications(item.specifications || []); // Pre-fill specifications (if any)
     setDeliveryMethods(
       item.deliveryMethods || { shipping: false, selfCollection: false }
@@ -169,8 +171,8 @@ const CreateListing = () => {
   };
 
   // Step 2: Upload Images
-  const [images, setImages] = useState<File[]>([]);
-  const [sizingChart, setSizingChart] = useState<File[]>([]);
+  const [images, setImages] = useState<string[]>([]);
+  const [sizingChart, setSizingChart] = useState<string[]>([]);
   const [isUploadImage, setIsUploadImage] = useState(false);
   const [isUploadSizingChart, setIsUploadSizingChart] = useState(false);
 
@@ -185,7 +187,47 @@ const CreateListing = () => {
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const compressImage = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 800;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          // For Reference: Adjust quality here (0.6 = 60% quality)
+          const compressedBase64 = canvas.toDataURL("image/jpeg", 0.6);
+          resolve(compressedBase64);
+        };
+      };
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsUploadImage(true);
     setIsUploadSizingChart(false);
     const images: File[] = Array.from(e.target.files || []); // Convert FileList to an array
@@ -201,11 +243,13 @@ const CreateListing = () => {
 
     // Validation: Image formats
     const validFormats = ["image/jpeg", "image/jpg", "application/pdf"];
-    images.forEach((image: File) => {
+    images.forEach(async (image) => {
       if (!validFormats.includes(image.type)) {
         error =
           "Invalid format for pictures. Only jpeg, jpg, and pdf files are allowed.";
       }
+      const base64Image = await compressImage(image);
+      setImages((prev) => [...prev, base64Image as string]);
     });
 
     // Handle validation error
@@ -216,7 +260,6 @@ const CreateListing = () => {
 
     // Update state with valid files
     setErrorMessage(""); // Clear previous errors
-    setImages((prev) => [...prev, ...images]); // Add new files to existing files
   };
 
   const handleSizingChartUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -235,11 +278,13 @@ const CreateListing = () => {
 
     // Validation: File formats
     const validFormats = ["image/jpeg", "image/jpg", "application/pdf"];
-    sizingCharts.forEach((sizingChart: File) => {
+    sizingCharts.forEach(async (sizingChart) => {
       if (!validFormats.includes(sizingChart.type)) {
         error =
           "Invalid format for sizing chart pictures. Only jpeg, jpg, and pdf files are allowed.";
       }
+      const base64Image = await compressImage(sizingChart);
+      setSizingChart((prev) => [...prev, base64Image as string]);
     });
 
     // Handle validation error
@@ -250,7 +295,6 @@ const CreateListing = () => {
 
     // Update state with valid files
     setErrorMessage(""); // Clear previous errors
-    setSizingChart((prev) => [...prev, ...sizingCharts]); // Add new files to existing files
   };
 
   const handleDeleteImage = (index: number) => {
@@ -380,7 +424,6 @@ const CreateListing = () => {
     setCurrentStep((prevStep) => prevStep + 1);
   };
 
-  // Step 5: Review and Submit
   const handlePostListingClick = async () => {
     if (title.trim() !== "" && description.trim() !== "") {
       const newListingDetails: Listing = {
@@ -397,7 +440,7 @@ const CreateListing = () => {
       setListings([...listings, newListingDetails]);
 
       // Clear the input fields after submission
-      // setNewListing(""); // Clear the new listing input field
+
       setTitle(""); // Clear the title
       setDescription(""); // Clear the description
       setImages([]); // Clear images
@@ -492,10 +535,10 @@ const CreateListing = () => {
 
       // Handle the response (success or failure)
       if (!response.success) {
-        setErrorMessage(response.message || "Failed to post the listing");
+        setErrorMessage(response.message || "Failed to post the draft");
       }
     } catch (error) {
-      setErrorMessage("An error occurred while posting the listing.");
+      setErrorMessage("An error occurred while posting the draft.");
     }
 
     try {
@@ -574,6 +617,38 @@ const CreateListing = () => {
     }
   };
 
+  // navigate left and right between images 
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const combined = selectedItem
+    ? [...selectedItem.images, ...selectedItem.sizingChart]
+    : [...images, ...sizingChart];
+
+  const handleArrowKey = (direction: any) => {
+    if (direction === "left") {
+      setCurrentIndex((prev) => Math.max(0, prev - 1));
+    } else if (direction === "right") {
+      setCurrentIndex((prev) => Math.min(combined.length - 1, prev + 1));
+    }
+  };
+
+  React.useEffect(() => {
+    const handleKeyDown = (event: any) => {
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        handleArrowKey("left");
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        handleArrowKey("right");
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
   const renderStep = () => {
     switch (currentStep) {
       case 0:
@@ -600,12 +675,12 @@ const CreateListing = () => {
                   {!viewDrafts ? (
                     <div
                       className="drafts-overview"
-                      onClick={() => setViewDrafts(true)} // Show detailed drafts on click
+                      onClick={() => setViewDrafts(true)} 
                     >
                       <h2 className="font-bold">Drafts</h2>
                       <p>Click to view and manage your drafts</p>
                     </div>
-                  ) : (
+                  ) : ( // Show drafts on click (attempting to use the same grid / UIUX as listing but not working)
                     <div className="listings-grid">
                       <div className="drafts-header">
                         <h2 className="font-bold">Your Drafts</h2>
@@ -617,47 +692,37 @@ const CreateListing = () => {
                         </button>
                       </div>
 
-           
-                        {drafts.length > 0 ? (
-                          drafts.map((draft, index) => (
-                            <div
-                              key={index}
-                              onClick={() => handleItemClick(draft, true)}
-                              className="draft-box"
-                            >
-                              <h3>{draft.title}</h3>
-                              <p>{draft.description}</p>
-                              {/* Display images */}
-                              {draft.images && draft.images.length > 0 ? (
-                                <div className="draft-images">
-                                  {draft.images.map((image, idx) => {
-                                    const imageUrl =
-                                      image instanceof File
-                                        ? URL.createObjectURL(image)
-                                        : image;
-                                    return (
-                                      <img
-                                        key={idx}
-                                        src={imageUrl}
-                                        alt={`draft-image-${idx}`}
-                                        className="draft-image"
-                                      />
-                                    );
-                                  })}
-                                </div>
-                              ) : (
-                                <p>No images available</p>
-                              )}
-                            </div>
-                          ))
-                        ) : (
-                          <div>No drafts available</div>
-                        )}
-                      </div>
+                      //show individual drafts with cover page
+                      {drafts.length > 0 ? (
+                        drafts.map((draft, index) => (
+                          <div
+                            key={index}
+                            onClick={() => handleItemClick(draft, true)}
+                            className="draft-box"
+                          >
+                            <h3>{draft.title}</h3>
+                            <p>{draft.description}</p>
+                            {/* Display images */}
+                            {draft.images && draft.images.length > 0 ? (
+                              <div className="draft-images">
+                                <img
+                                  src={draft.images[0]}
+                                  className="draft-image"
+                                />
+                              </div>
+                            ) : (
+                              <p>No images available</p>
+                            )}
+                          </div>
+                        ))
+                      ) : (
+                        <div>No drafts available</div>
+                      )}
+                    </div>
                   )}
                 </div>
 
-                {/* Listings Section */}
+                //show listings with cover page 
                 {listings.length > 0 ? (
                   listings.map((listing, index) => (
                     <div
@@ -670,20 +735,10 @@ const CreateListing = () => {
                       {/* Display images */}
                       {listing.images && listing.images.length > 0 ? (
                         <div className="listing-images">
-                          {listing.images.map((image, idx) => {
-                            const imageUrl =
-                              image instanceof File
-                                ? URL.createObjectURL(image)
-                                : image;
-                            return (
-                              <img
-                                key={idx}
-                                src={imageUrl}
-                                alt={`listing-image-${idx}`}
-                                className="listing-image"
-                              />
-                            );
-                          })}
+                          <img
+                            src={listing.images[0]}
+                            className="listing-image"
+                          />
                         </div>
                       ) : (
                         <p>No images available</p>
@@ -700,8 +755,8 @@ const CreateListing = () => {
 
         return (
           <div className="detailed-view">
-            {/* Buttons */}
-
+            
+            {/* Edit listing */} 
             <div className="action-buttons">
               {!viewDrafts ? (
                 <>
@@ -713,7 +768,7 @@ const CreateListing = () => {
                       Edit Listing
                     </button>
 
-                    {/* DeleteListing_Drafts button inside a div */}
+                    {/* DeleteListing_Drafts button using DeleteListing_Drafts Modal */}
                     {selectedItem && (
                       <div className="delete-button-wrapper">
                         <DeleteListing_Drafts
@@ -726,7 +781,7 @@ const CreateListing = () => {
                 </>
               ) : (
                 <>
-                  {/* Render drafts */}
+                  {/* Edit drafts */}
                   {drafts.map((item, index) => (
                     <div
                       key={index}
@@ -755,28 +810,49 @@ const CreateListing = () => {
                 </>
               )}
 
+              {/* Post Draft Button */}
+              <button
+                className="back-button"
+                onClick={() => handlePostDrafts(selectedItem)}
+              >
+                Post Draft
+              </button>
+
               {/* Cancel Button */}
               <button className="back-button" onClick={goBackToList}>
                 Cancel
               </button>
             </div>
 
-            {/* Item Details to be displayed when clicked in*/}
+            {/* Item Details to be displayed when clicked into each box*/}
             <div className="listing-container">
               <div className="image-container">
                 <div className="image-preview">
-                  {selectedItem.images.map((image, index) => (
+                  {combined.map((image, index) => (
                     <img
                       key={index}
-                      src={URL.createObjectURL(image)}
+                      src={image}
                       alt={`preview-${index}`}
                       className="main-image"
+                      style={{
+                        display: index === currentIndex ? "block" : "none",
+                      }}
                     />
                   ))}
                 </div>
                 <div className="arrow-navigation">
-                  <button className="arrow left">&#x3C;</button>
-                  <button className="arrow right">&#x3E;</button>
+                  <button
+                    className="arrow left"
+                    onClick={() => handleArrowKey("left")}
+                  >
+                    &#x3C;
+                  </button>
+                  <button
+                    className="arrow right"
+                    onClick={() => handleArrowKey("right")}
+                  >
+                    &#x3E;
+                  </button>
                 </div>
               </div>
               <div className="details-container">
@@ -801,15 +877,12 @@ const CreateListing = () => {
                   </div>
                 </div>
                 <div className="quantity-selector">
-                  <button className="qty-button">-</button>
-                  <span className="quantity">
-                    {selectedItem.specifications.map((spec, index) => (
-                      <button key={index} className={`option ${spec.quantity}`}>
-                        {spec.quantity}
-                      </button>
-                    ))}
-                  </span>
-                  <button className="qty-button">+</button>
+                  <span className="label">Quantity:</span>
+                  {selectedItem.specifications.map((spec, index) => (
+                    <button key={index} className={`option ${spec.quantity}`}>
+                      {spec.quantity}
+                    </button>
+                  ))}
                 </div>
                 <div className="shipping-options">
                   <button
@@ -839,6 +912,7 @@ const CreateListing = () => {
           </div>
         );
 
+    //details usewr has to fill up to post a listing / draft. Case 1 - 5 are the different stages 
       case 1:
         return (
           <div className="listings-container">
@@ -894,7 +968,7 @@ const CreateListing = () => {
                       {images.map((image, index) => (
                         <div key={index} className="image-preview-wrapper">
                           <img
-                            src={URL.createObjectURL(image)}
+                            src={image}
                             alt={`preview-${index}`}
                             className="preview-image"
                           />
@@ -917,7 +991,7 @@ const CreateListing = () => {
                       {sizingChart.map((file, index) => (
                         <div key={index} className="image-preview-wrapper">
                           <img
-                            src={URL.createObjectURL(file)}
+                            src={file}
                             alt={`preview-${index}`}
                             className="preview-image"
                           />
@@ -1127,18 +1201,31 @@ const CreateListing = () => {
           <div className="listing-container">
             <div className="image-container">
               <div className="image-preview">
-                {images.map((image, index) => (
+                {combined.map((image, index) => (
                   <img
                     key={index}
-                    src={URL.createObjectURL(image)}
+                    src={image}
                     alt={`preview-${index}`}
                     className="main-image"
+                    style={{
+                      display: index === currentIndex ? "block" : "none",
+                    }}
                   />
                 ))}
               </div>
               <div className="arrow-navigation">
-                <button className="arrow left">&#x3C;</button>
-                <button className="arrow right">&#x3E;</button>
+                <button
+                  className="arrow left"
+                  onClick={() => handleArrowKey("left")}
+                >
+                  &#x3C;
+                </button>
+                <button
+                  className="arrow right"
+                  onClick={() => handleArrowKey("right")}
+                >
+                  &#x3E;
+                </button>
               </div>
             </div>
             <div className="details-container">
@@ -1162,16 +1249,14 @@ const CreateListing = () => {
                   ))}
                 </div>
               </div>
+
               <div className="quantity-selector">
-                <button className="qty-button">-</button>
-                <span className="quantity">
-                  {specifications.map((spec, index) => (
-                    <button key={index} className={`option ${spec.quantity}`}>
-                      {spec.quantity}
-                    </button>
-                  ))}
-                </span>
-                <button className="qty-button">+</button>
+                <span className="label">Quantity: </span>
+                {specifications.map((spec, index) => (
+                  <button key={index} className={`option ${spec.quantity}`}>
+                    {spec.quantity}
+                  </button>
+                ))}
               </div>
               <div className="shipping-options">
                 <button

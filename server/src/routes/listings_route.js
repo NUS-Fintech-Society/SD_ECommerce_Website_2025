@@ -43,12 +43,10 @@ router.get("/:id", async (req, res) => {
 router.post("/create", upload, async (req, res) => {
   try {
     // If files are uploaded, add their paths to the listing data
-    const imagePaths = req.files ? req.files.map(file => file.path) : [];
 
     // Create a new listing, adding the images array to the data
     const newListing = new Listing({
       ...req.body.data,
-      images: imagePaths,  // Add the image file paths to the listing data
     });
 
     // Save the new listing to the database
@@ -56,10 +54,8 @@ router.post("/create", upload, async (req, res) => {
     console.log(imagePaths)
 
     res.status(201).json({ message: "Listing created successfully!" });
-    console.log("5")
   } catch (error) {
     console.error(error);
-    console.log("6")
     res.status(500).json({ error: "Error creating listing." });
   }
 });
