@@ -11,6 +11,7 @@ const email = require("./routes/email_route");
 const listingsRoute = require("./routes/listings_route");
 const draftsRoute = require("./routes/drafts_route");
 const userVerification = require("./routes/user_verification_route");
+const adminRequest = require("./routes/admin_request_route");
 
 
 
@@ -42,7 +43,7 @@ app.use("/email", email);
 app.use("/verify", userVerification);
 app.use("/listings", listingsRoute);
 app.use("/drafts", draftsRoute);
-
+app.use("/adminRequest", adminRequest);
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);

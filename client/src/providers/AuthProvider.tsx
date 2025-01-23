@@ -1,5 +1,15 @@
 import { createContext, useContext, ReactNode, Dispatch, useReducer, useEffect, useState } from 'react';
 
+export interface AdminRequest {
+    _id: string;
+    name: string;
+    role: string;
+    mobileNumber: string;
+    organisation: string;
+    status: 'pending' | 'accepted' | 'rejected';
+    user: string;
+}
+
 export interface User {
     _id: string;
     username: string;
@@ -8,7 +18,8 @@ export interface User {
     isSuperAdmin: boolean;
     address?: string;
     profilePicture?: string;
-  }
+    adminRequests: AdminRequest[];
+}
 
 interface AuthContextType {
   user: User | null;

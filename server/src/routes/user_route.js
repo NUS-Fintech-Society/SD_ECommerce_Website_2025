@@ -13,7 +13,7 @@ router.get("/", async (req, res) => {
 
 router.get("/:id", async (req, res) => {
   const user_id = req.params.id;
-  const user = await User.findById(user_id);
+  const user = await User.findById(user_id).populate('adminRequests');
   res.send(JSON.stringify(user));
 });
 

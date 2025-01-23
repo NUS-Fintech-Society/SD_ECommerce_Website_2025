@@ -10,7 +10,7 @@
     "deploy-node-app": "^1.4.3",
     "docker": "^1.0.0",
     "dotenv": "^8.6.0",
-    "express": "^4.21.1",
+    "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.7.1",
     "nodemailer": "^6.9.16",
@@ -39,7 +39,7 @@
   },
   "scripts": {
     "start": "node src/index.js",
-    "build": "babel src -d dist",
+    "build": "babel src -d build",
     "deploy": "deploy-node-app",
     "test": "react-scripts test",
     "eject-www": "react-scripts eject"
