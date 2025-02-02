@@ -3,6 +3,7 @@ import "../Create_Edit_Listing.css";
 import { apiRequest } from "../api/apiRequest";
 import { useNavigate } from "react-router-dom";
 import DeleteListing_Drafts from "./DeleteListing_Drafts";
+import { ToastContainer, toast } from "react-toastify";
 import { isTemplateExpression } from "typescript";
 // import {
 //   AlertDialog,
@@ -44,8 +45,6 @@ type Drafts = {
   };
   collectionInfo: string;
 };
-
-
 
 const CreateListing = () => {
   const [listings, setListings] = useState<Listing[]>([]);
@@ -147,7 +146,7 @@ const CreateListing = () => {
 
   const handleContinueAfterTitleAndDescClick = () => {
     if (title === "") {
-      setErrorMessage("Please enter the title.");
+      toast.error("Please enter the title.");
       return;
     }
     if (description === "") {
@@ -156,13 +155,13 @@ const CreateListing = () => {
     console.log(title, description);
 
     if (title.length > 255) {
-      setErrorMessage(
+      toast.error(
         "The name can be up to 255 characters long. Valid characters include all alphanumeric characters and spaces."
       );
       return;
     }
     if (description.split(" ").length > 120) {
-      setErrorMessage("The description exceeds the maximum word count of 120.");
+      toast.error("The description exceeds the maximum word count of 120.");
       return;
     }
 
@@ -235,7 +234,7 @@ const CreateListing = () => {
 
     // Validation: Total file count
     if (images.length > 20) {
-      setErrorMessage(
+      toast.error(
         "There is a minimum of 1 and maximum of 20 pictures allowed."
       );
       return;
@@ -270,7 +269,7 @@ const CreateListing = () => {
 
     // Validation: Total file count
     if (sizingCharts.length > 5) {
-      setErrorMessage(
+      toast.error(
         "There is a maximum of 5 pictures allowed for the sizing chart."
       );
       return;
@@ -311,19 +310,19 @@ const CreateListing = () => {
 
   const handleAddMoreClick = () => {
     if (colour.length > 60) {
-      setErrorMessage(
+      toast.error(
         "The colour can be up to 60 characters long. Valid characters include all alphanumeric characters and spaces."
       );
       return;
     }
     if (size.length > 60) {
-      setErrorMessage(
+      toast.error(
         "The size can be up to 60 characters long. Valid characters include all alphanumeric characters and spaces."
       );
       return;
     }
     if (quantity.length > 10) {
-      setErrorMessage(
+      toast.error(
         "The quantity can be up to 10 digits long. Valid characters include all alphanumeric characters and spaces."
       );
       return;
@@ -354,19 +353,19 @@ const CreateListing = () => {
 
   const handleContinueAfterSpecifications = () => {
     if (colour.length > 60) {
-      setErrorMessage(
+      toast.error(
         "The colour can be up to 60 characters long. Valid characters include all alphanumeric characters and spaces."
       );
       return;
     }
     if (size.length > 60) {
-      setErrorMessage(
+      toast.error(
         "The size can be up to 60 characters long. Valid characters include all alphanumeric characters and spaces."
       );
       return;
     }
     if (quantity.length > 10) {
-      setErrorMessage(
+      toast.error(
         "The quantity can be up to 10 digits long. Valid characters include all alphanumeric characters and spaces."
       );
       return;
@@ -382,7 +381,7 @@ const CreateListing = () => {
         : false;
 
     if (isDuplicate) {
-      setErrorMessage("There is a duplicate specification – {Colour, Size}.");
+      toast.error("There is a duplicate specification – {Colour, Size}.");
       return;
     }
     setErrorMessage(""); // Clear error message
@@ -407,12 +406,12 @@ const CreateListing = () => {
   const handleContinueAfterShippingInfoClick = () => {
     // Ensure at least one checkbox is selected
     if (!deliveryMethods.shipping && !deliveryMethods.selfCollection) {
-      setErrorMessage("Please select at least one delivery method.");
+      toast.error("Please select at least one delivery method.");
       return;
     }
 
     if (collectionInfo.split(" ").length > 120) {
-      setErrorMessage("Additional information can be up to 120 words long.");
+      toast.error("Additional information can be up to 120 words long.");
       return;
     }
 
@@ -617,7 +616,7 @@ const CreateListing = () => {
     }
   };
 
-  // navigate left and right between images 
+  // navigate left and right between images
   const [currentIndex, setCurrentIndex] = useState(0);
   const combined = selectedItem
     ? [...selectedItem.images, ...selectedItem.sizingChart]
@@ -675,12 +674,13 @@ const CreateListing = () => {
                   {!viewDrafts ? (
                     <div
                       className="drafts-overview"
-                      onClick={() => setViewDrafts(true)} 
+                      onClick={() => setViewDrafts(true)}
                     >
                       <h2 className="font-bold">Drafts</h2>
                       <p>Click to view and manage your drafts</p>
                     </div>
-                  ) : ( // Show drafts on click 
+                  ) : (
+                    // Show drafts on click
                     <div className="listings-grid">
                       <div className="drafts-header">
                         <h2 className="font-bold">Your Drafts</h2>
@@ -692,7 +692,7 @@ const CreateListing = () => {
                         </button>
                       </div>
 
-                      {drafts.length > 0 ? (   //show individual drafts with cover page ((attempting to use the same grid / UIUX as listing but not working))
+                      {drafts.length > 0 ? ( //show individual drafts with cover page ((attempting to use the same grid / UIUX as listing but not working))
                         drafts.map((draft, index) => (
                           <div
                             key={index}
@@ -721,8 +721,7 @@ const CreateListing = () => {
                   )}
                 </div>
 
-
-                {listings.length > 0 ? (                 // show listings with cover page 
+                {listings.length > 0 ? ( // show listings with cover page
                   listings.map((listing, index) => (
                     <div
                       key={index}
@@ -754,8 +753,7 @@ const CreateListing = () => {
 
         return (
           <div className="detailed-view">
-            
-            {/* Edit listing */} 
+            {/* Edit listing */}
             <div className="action-buttons">
               {!viewDrafts ? (
                 <>
@@ -806,17 +804,15 @@ const CreateListing = () => {
                       </div>
                     )}
                   </div>
-                                {/* Post Draft Button */}
-              <button
-              className="back-button"
-              onClick={() => handlePostDrafts(selectedItem)}
-            >
-              Post Draft
-            </button>
+                  {/* Post Draft Button */}
+                  <button
+                    className="back-button"
+                    onClick={() => handlePostDrafts(selectedItem)}
+                  >
+                    Post Draft
+                  </button>
                 </>
               )}
-
-
 
               {/* Cancel Button */}
               <button className="back-button" onClick={goBackToList}>
@@ -912,7 +908,7 @@ const CreateListing = () => {
           </div>
         );
 
-    //details user has to fill up to post a listing / draft. Case 1 - 5 are the different stages 
+      //details user has to fill up to post a listing / draft. Case 1 - 5 are the different stages
       case 1:
         return (
           <div className="listings-container">
@@ -937,7 +933,6 @@ const CreateListing = () => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             ></textarea>
-            {errorMessage && <p className="error-message">{errorMessage}</p>}
             <div className="action-buttons">
               <button className="cancel-button" onClick={handleCancelClick}>
                 Cancel
@@ -1049,11 +1044,6 @@ const CreateListing = () => {
                   />
                   <p>Uploaded Sizing Chart: {sizingChart.length}/5</p>
                 </div>
-
-                {/* Validation Error */}
-                {errorMessage && (
-                  <p className="error-message">{errorMessage}</p>
-                )}
               </div>
             </div>
 
@@ -1125,7 +1115,6 @@ const CreateListing = () => {
                 + Add more
               </button>
             </div>
-            {errorMessage && <p className="error-message">{errorMessage}</p>}
             <div className="action-buttons">
               <button className="cancel-button" onClick={handleBackClick}>
                 Back
@@ -1179,8 +1168,6 @@ const CreateListing = () => {
                 ></input>
               </div>
             )}
-            {/* Error Message */}
-            {errorMessage && <p className="error-message">{errorMessage}</p>}
             {/* Action Buttons */}
             <div className="action-buttons">
               <button className="cancel-button" onClick={handleBackClick}>
@@ -1346,6 +1333,7 @@ const CreateListing = () => {
         <div className="logo">ELEOS</div>
       </div>
       {/* Create Listing Steps */}
+      <ToastContainer />
       <div className="content-container">{renderStep()}</div>
     </div>
   );
