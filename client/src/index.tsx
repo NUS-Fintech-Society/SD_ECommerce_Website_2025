@@ -13,33 +13,7 @@ import EditProfile from "./components/EditProfile";
 import { ChakraProvider } from "@chakra-ui/react";
 import AdminRequest from "./components/AdminRequest";
 
-
 const router = createBrowserRouter([
-<<<<<<< HEAD
-    {
-        path: "/",
-        element: <App />,
-        children: [
-            {
-                path: "/", // Landing page route
-                element: <Admin />,
-            },
-            {
-                path: "/home",
-                element: <Home />,
-            },
-            {
-                path: "/login", // Login page route
-                element: <Login />,
-            },
-            {
-                path: "/signup", // Login page route
-                element: <Signup />,
-            },
-        ],
-    },
-    {
-=======
   {
     path: "/",
     element: <App />,
@@ -79,7 +53,6 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       {
->>>>>>> deee6b6449d8abe6387d9dc40a37dc28ef55e4c2
         path: "/admin",
         element: <Admin />,
       },
