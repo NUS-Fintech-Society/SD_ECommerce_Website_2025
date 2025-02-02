@@ -8,6 +8,12 @@ const product = require("./routes/product_route");
 const user = require("./routes/user_route");
 const order = require("./routes/order_route");
 const email = require("./routes/email_route");
+const listingsRoute = require("./routes/listings_route");
+const draftsRoute = require("./routes/drafts_route");
+const userVerification = require("./routes/user_verification_route");
+const adminRequest = require("./routes/admin_request_route");
+
+
 
 // Importing the mongooose package
 const mongoose = require('mongoose');
@@ -34,6 +40,10 @@ app.use("/product", product);
 app.use("/users", user);
 app.use("/order", order);
 app.use("/email", email);
+app.use("/verify", userVerification);
+app.use("/listings", listingsRoute);
+app.use("/drafts", draftsRoute);
+app.use("/adminRequest", adminRequest);
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);

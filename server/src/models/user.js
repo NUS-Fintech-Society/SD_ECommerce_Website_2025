@@ -32,6 +32,15 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  address: {
+    type: String,
+    default: "",
+  },
+  profilePicture: {
+    type: String,
+    default: "",
+  },
+  adminRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'AdminRequest' }]
 });
 
 userSchema.methods.generateAuthToken = function () {
