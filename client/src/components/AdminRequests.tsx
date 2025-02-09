@@ -123,7 +123,7 @@ export default function AdminRequests() {
                                 className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 my-6 mx-3"
                                 onClick={() => handleReject(req._id)}
                                 >
-                                Remove Admin
+                                Reject
                             </button>
                             <button
                                 className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 my-6"
