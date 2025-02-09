@@ -101,8 +101,8 @@ function Profile() {
                                     value={address || ''}   
                                 />
                             </div>
-                            {/* Request for Admin Button */}
-                            <div className="col-span-2 flex justify-end"> {/* Use col-span-2 to span across both columns */}
+                            {!user?.isSuperAdmin ? (
+                            <div className="col-span-2 flex justify-end">
                                 <Link className="bg-gray-300 text-black px-6 py-2 rounded-full hover:bg-gray-400" to="/profile/adminRequest">
                                     <button 
                                         className="flex justify-center items-center"
@@ -114,6 +114,20 @@ function Profile() {
                                     <Tooltip id='request' />
                                 </Link>
                             </div>
+                            ) : (
+                            <div className="col-span-2 flex justify-end">
+                                <Link className="bg-gray-300 text-black px-6 py-2 rounded-full hover:bg-gray-400" to="/superAdmin/manageAccounts">
+                                    <button 
+                                        className="flex justify-center items-center"
+                                        data-tooltip-id='manage'
+                                        data-tooltip-content="Click to manage accounts"
+                                    >
+                                        Manage Accounts
+                                    </button>
+                                    <Tooltip id='manage' />
+                                </Link>
+                            </div>
+                            )}
                         </div>
                     </div>
                 </div>

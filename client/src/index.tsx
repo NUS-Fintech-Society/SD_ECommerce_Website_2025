@@ -11,7 +11,9 @@ import Profile from "./components/Profile";
 import "./index.css";
 import EditProfile from "./components/EditProfile";
 import { ChakraProvider } from "@chakra-ui/react";
-import AdminRequest from "./components/AdminRequest";
+import AdminRequest from "./components/AdminRequestForm";
+import ManageAccounts from "./components/ManageAccounts";
+import AdminRequests from "./components/AdminRequests";
 
 
 const router = createBrowserRouter([
@@ -56,6 +58,20 @@ const router = createBrowserRouter([
       {
         path: "/admin",
         element: <Admin />,
+      },
+    ],
+  },
+  {
+    path: "/superAdmin",
+    element: <App />,
+    children: [
+      {
+        path: "/superAdmin/manageAccounts",
+        element: <ManageAccounts />,
+      },
+      {
+        path: "/superAdmin/adminRequests",
+        element: <AdminRequests />,
       },
     ],
   },

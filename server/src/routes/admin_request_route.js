@@ -47,4 +47,45 @@ router.post("/:id", async (req, res) => {
     }
 });
 
+router.get("/pending", async (req, res) => {
+    const requests = await AdminRequest.find({status: "pending"});
+    res.send(JSON.stringify(requests));
+});
+
+router.put("/reject/:id", async (req, res) => {
+  try {
+    console.log(req.params.id);
+    const rejectedRequest = await AdminRequest.findById(req.params.id);
+
+    if (!rejectedRequest) return res.status(404).send({ message: "Request not found" });
+
+    rejectedRequest.status = 'rejected';
+    rejectedRequest.save();
+
+    res.status(200).send({ message: "Request rejected successfully" });
+  } catch (err) {
+    res.status(500).send({ message: "Error deleting Request", error: err });
+  }
+})
+
+router.put("/accept/:id", async (req, res) => {
+    try {
+      console.log(req.params.id);
+      const acceptedRequest = await AdminRequest.findById(req.params.id);
+  
+      if (!acceptedRequest) return res.status(404).send({ message: "Request not found" });
+  
+      acceptedRequest.status = 'accepted';
+      const acceptedUser = await User.findById(acceptedRequest.user);
+      acceptedUser.isAdmin = true;
+
+      acceptedRequest.save();
+      acceptedUser.save();
+  
+      res.status(200).send({ message: "Request accepted successfully" });
+    } catch (err) {
+      res.status(500).send({ message: "Error accepting Request", error: err });
+    }
+})
+
 module.exports = router;
