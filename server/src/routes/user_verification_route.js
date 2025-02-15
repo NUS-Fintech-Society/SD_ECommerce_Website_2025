@@ -1,32 +1,34 @@
-const express = require('express');
+const express = require("express");
 const { UserVerification } = require("../models/userVerification");
 const { User } = require("../models/user");
 const router = express.Router();
 
 router.get("/email/:token", async (req, res) => {
     try {
-      const pendingEmail = await UserVerification.findOne({
-        verificationToken: req.params.token
-      });
-  
-      if (!pendingEmail) {
-        return res.status(400).send("Invalid or expired verification token");
-      }
-  
-      // First find the user
-      const user = await User.findById(pendingEmail.userId);
-      if (!user) {
-        return res.status(404).send("User not found");
-      }
+        const pendingEmail = await UserVerification.findOne({
+            verificationToken: req.params.token,
+        });
 
-      // Update the email
-      user.email = pendingEmail.email;
-      await user.save();
-  
-      // Delete the pending email record
-      await UserVerification.deleteOne({ _id: pendingEmail._id });
-  
-      res.send(`
+        if (!pendingEmail) {
+            return res
+                .status(400)
+                .send("Invalid or expired verification token");
+        }
+
+        // First find the user
+        const user = await User.findById(pendingEmail.userId);
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
+
+        // Update the email
+        user.email = pendingEmail.email;
+        await user.save();
+
+        // Delete the pending email record
+        await UserVerification.deleteOne({ _id: pendingEmail._id });
+
+        res.send(`
         <html>
           <head>
             <title>Email Verification Success</title>
@@ -41,7 +43,7 @@ router.get("/email/:token", async (req, res) => {
                 background-color: #f5f5f5;
               }
               .container {
-                text-align: center;
+                text-align: left;
                 padding: 2rem;
                 background: white;
                 border-radius: 8px;
@@ -63,9 +65,9 @@ router.get("/email/:token", async (req, res) => {
         </html>
       `);
     } catch (error) {
-      console.error("Error verifying email:", error);
-      res.status(500).send("An error occurred while verifying email");
+        console.error("Error verifying email:", error);
+        res.status(500).send("An error occurred while verifying email");
     }
-  });       
+});
 
 module.exports = router;
