@@ -147,65 +147,59 @@ function EditProfile() {
                 formattedFormData
             );
     
-            if (response.success) {
-                console.log(response.data);
-                const verificationToken = response.data?.data?.verificationToken;
-                console.log("Token:",verificationToken);
-                
-                if (isEmailChange && verificationToken) {
-                    // Create verification URL
-                    const verificationUrl = `${process.env.REACT_APP_API_URL}/verify/email/${verificationToken}`;
-                    
-                    // Send verification email
-                    const emailResponse = await apiRequest("email", "POST", "send", {
-                        to: formData.email,
-                        subject: "Email Verification Required",
-                        text: `Please verify your new email address by clicking this link: ${verificationUrl}`,
-                        html: `
-                            <h1>Email Verification Required</h1>
-                            <p>Please click the button below to verify your new email address:</p>
-                            <a href="${verificationUrl}" 
-                               style="background-color: #4CAF50; 
-                                      color: white; 
-                                      padding: 14px 20px; 
-                                      text-decoration: none; 
-                                      border-radius: 4px;
-                                      display: inline-block;">
-                                Verify Email
-                            </a>
-                            <p>Or copy and paste this link in your browser:</p>
-                            <p>${verificationUrl}</p>
-                            <p>This link will expire in 24 hours.</p>
-                        `
-                    });
-    
-                    if (emailResponse.success) {
-                        setModalState({
-                            isOpen: true,
-                            title: "Success",
-                            message: `Please verify your new email address at ${formData.email}`
-                        });
-                    } else {
-                        setModalState({
-                            isOpen: true,
-                            title: "Error",
-                            message: "Please try again."
-                        });
-                    }
-                } else {
-                    setModalState({
-                        isOpen: true,
-                        title: "Success",
-                        message: "Profile updated successfully!"
-                    });
-                }
-            } else {
-                setModalState({
+            if (!response.success) {
+                return setModalState({
                     isOpen: true,
                     title: "Error",
-                    message: response.message || "Failed to update profile"
+                    message: "Profile update failed. Please try again.",
                 });
             }
+            
+            const emailVerificationToken = response.data?.data?.verificationToken;
+            console.log("Email Verification Token:", emailVerificationToken);
+
+            // Validate email change and token existence before proceeding with verification
+            if (isEmailChange && emailVerificationToken) {
+                const verificationUrl = `${process.env.REACT_APP_API_URL}/verify/email/${emailVerificationToken}`;
+                
+                // Attempt to send a verification email
+                const emailResponse = await apiRequest("email", "POST", "send", {
+                    to: formData.email,
+                    subject: "Verify Your Email Address",
+                    text: ` 
+                    Confirm Your Email Address
+                    --------------------------
+                    Click the button below to verify your new email address:
+            
+                    Verify Email: ${verificationUrl}
+            
+                    If the button doesn’t work, copy and paste this link into your browser:
+                    ${verificationUrl}
+            
+                    Note: This link is valid for 24 hours.`
+                });
+
+                if (!emailResponse.success) {
+                    console.error("Error sending verification email.");
+                }
+            
+
+                return setModalState({
+                    isOpen: true,
+                    title: emailResponse.success ? "Success" : "Error",
+                    message: emailResponse.success
+                        ? `Please verify your new email address at ${formData.email}`
+                        : "Failed to send verification email. Please try again.",
+                });
+            }
+            
+            // If no email change or verification needed, confirm profile update success
+            setModalState({
+                isOpen: true,
+                title: "Success",
+                message: "Profile updated successfully!",
+            });
+            
     
         } catch (error) {
             console.error("Error updating profile:", error);

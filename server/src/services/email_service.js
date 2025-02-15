@@ -1,12 +1,12 @@
-const nodemailer = require('nodemailer');
-require('dotenv');
+const nodemailer = require("nodemailer");
+require("dotenv");
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    service: "gmail",
     auth: {
         user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-    }
+        pass: process.env.SMTP_PASS,
+    },
 });
 
 async function sendEmail(to, subject, text) {
@@ -14,7 +14,7 @@ async function sendEmail(to, subject, text) {
         from: process.env.SMTP_USER,
         to,
         subject,
-        text, 
+        text,
     };
 
     await transporter.sendMail(mailOptions);
@@ -26,6 +26,6 @@ transporter.verify((error) => {
     } else {
         console.log("SMTP services ready");
     }
-})
+});
 
 module.exports = { sendEmail };
