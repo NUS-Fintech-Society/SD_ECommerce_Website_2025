@@ -13,6 +13,7 @@ import EditProfile from "./components/EditProfile";
 import { ChakraProvider } from "@chakra-ui/react";
 import AdminRequest from "./components/AdminRequest";
 import Create_Edit_Listing from "./components/Create_Edit_Listing";
+import UserListings from "./components/UserListings";
 
 const router = createBrowserRouter([
   {
@@ -21,7 +22,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/", // Landing page route
-        element: <Landing />,
+        element: <UserListings />,
       },
       {
         path: "/home",
