@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import DeleteListing_Drafts from "./DeleteListing_Drafts";
 import { ToastContainer, toast } from "react-toastify";
 import { isTemplateExpression } from "typescript";
+import { IoIosSearch } from "react-icons/io";
 // import {
 //   AlertDialog,
 //   AlertDialogBody,
@@ -62,6 +63,10 @@ const CreateListing = () => {
   const [isDraft, setIsDraft] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [imageFileNames, setImageFileNames] = useState<string[]>([]);
+  const [sizingChartFileNames, setSizingChartFileNames] = useState<string[]>(
+    []
+  );
 
   const fetchListings = async () => {
     try {
@@ -241,23 +246,25 @@ const CreateListing = () => {
     }
 
     // Validation: Image formats
-    const validFormats = ["image/jpeg", "image/jpg", "application/pdf"];
+    const validFormats = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "application/pdf",
+    ];
     images.forEach(async (image) => {
       if (!validFormats.includes(image.type)) {
         error =
-          "Invalid format for pictures. Only jpeg, jpg, and pdf files are allowed.";
+          "Invalid format for pictures. Only jpeg, jpg, png and pdf files are allowed.";
       }
       const base64Image = await compressImage(image);
       setImages((prev) => [...prev, base64Image as string]);
+      setImageFileNames((prev) => [
+        ...prev,
+        ...images.map((file) => file.name),
+      ]);
     });
 
-    // Handle validation error
-    if (error) {
-      setErrorMessage(error);
-      return;
-    }
-
-    // Update state with valid files
     setErrorMessage(""); // Clear previous errors
   };
 
@@ -276,14 +283,23 @@ const CreateListing = () => {
     }
 
     // Validation: File formats
-    const validFormats = ["image/jpeg", "image/jpg", "application/pdf"];
+    const validFormats = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "application/pdf",
+    ];
     sizingCharts.forEach(async (sizingChart) => {
       if (!validFormats.includes(sizingChart.type)) {
         error =
-          "Invalid format for sizing chart pictures. Only jpeg, jpg, and pdf files are allowed.";
+          "Invalid format for sizing chart pictures. Only jpeg, jpg, png, and pdf files are allowed.";
       }
       const base64Image = await compressImage(sizingChart);
       setSizingChart((prev) => [...prev, base64Image as string]);
+      setSizingChartFileNames((prev) => [
+        ...prev,
+        ...sizingCharts.map((file) => file.name),
+      ]);
     });
 
     // Handle validation error
@@ -298,6 +314,16 @@ const CreateListing = () => {
 
   const handleDeleteImage = (index: number) => {
     setImages((prevImages) => prevImages.filter((_, i) => i !== index));
+    setImageFileNames((prevFileNames) =>
+      prevFileNames.filter((_, i) => i != index)
+    );
+  };
+
+  const handleDeleteSizingChart = (index: number) => {
+    setSizingChart((prevImages) => prevImages.filter((_, i) => i !== index));
+    setSizingChartFileNames((prevFileNames) =>
+      prevFileNames.filter((_, i) => i != index)
+    );
   };
 
   // Step 3: Specifications
@@ -660,7 +686,7 @@ const CreateListing = () => {
                   className="add-listing-button"
                   onClick={() => setCurrentStep(1)}
                 >
-                  Create Listing
+                  Add Listing
                 </button>
               </div>
 
@@ -821,7 +847,7 @@ const CreateListing = () => {
             </div>
 
             {/* Item Details to be displayed when clicked into each box*/}
-            <div className="listing-container">
+            <div className="listings-container">
               <div className="image-container">
                 <div className="image-preview">
                   {combined.map((image, index) => (
@@ -912,7 +938,7 @@ const CreateListing = () => {
       case 1:
         return (
           <div className="listings-container">
-            <h2 className="font-bold">
+            <h2 className="header-font">
               {isEditing
                 ? isDraft
                   ? "Edit Draft"
@@ -951,7 +977,7 @@ const CreateListing = () => {
         // Upload Images UI
         return (
           <div className="listings-container">
-            <h2 className="font-bold">Upload Images</h2>
+            <h2 className="header-font">Upload Images</h2>
             <div className="upload-images-wrapper">
               {/* Left Panel - Preview */}
               <div className="preview-panel">
@@ -992,7 +1018,7 @@ const CreateListing = () => {
                           />
                           <button
                             className="delete-button"
-                            onClick={() => handleDeleteImage(index)}
+                            onClick={() => handleDeleteSizingChart(index)}
                           >
                             &times;
                           </button>
@@ -1018,11 +1044,24 @@ const CreateListing = () => {
                   <input
                     type="file"
                     id="item-images-input"
-                    accept=".jpg,.jpeg,.pdf"
+                    accept=".jpg,.jpeg,.png,.pdf"
                     multiple
                     onChange={handleImageUpload}
                     className="hidden-input"
                   />
+                  <div className="uploaded-files">
+                    {imageFileNames.map((name, index) => (
+                      <div key={index} className="file-item">
+                        {name}
+                        <button
+                          className="delete-button"
+                          onClick={() => handleDeleteImage(index)}
+                        >
+                          &times;
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                   <p>Uploaded Images: {images.length}/20</p>
                 </div>
 
@@ -1037,11 +1076,24 @@ const CreateListing = () => {
                   <input
                     type="file"
                     id="sizing-chart-input"
-                    accept=".jpg,.jpeg,.pdf"
+                    accept=".jpg,.jpeg,.png,.pdf"
                     multiple
                     onChange={handleSizingChartUpload}
                     className="hidden-input"
                   />
+                  <div className="uploaded-files">
+                    {sizingChartFileNames.map((name, index) => (
+                      <div key={index} className="file-item">
+                        {name}
+                        <button
+                          className="delete-button"
+                          onClick={() => handleDeleteSizingChart(index)}
+                        >
+                          &times;
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                   <p>Uploaded Sizing Chart: {sizingChart.length}/5</p>
                 </div>
               </div>
@@ -1065,7 +1117,7 @@ const CreateListing = () => {
         // Specifications UI
         return (
           <div className="listings-container">
-            <h2 className="font-bold">Specifications</h2>
+            <h2 className="header-font">Specifications</h2>
             <div className="specifications-header">
               <h3>Colour</h3>
               <h3>Size</h3>
@@ -1132,7 +1184,7 @@ const CreateListing = () => {
       case 4:
         return (
           <div className="listings-container">
-            <h2 className="font-bold">Shipping</h2>
+            <h2 className="header-font">Shipping</h2>
             <div className="delivery-methods">
               <h2 className="delivery-methods-title">
                 Select your Delivery Method
@@ -1144,7 +1196,7 @@ const CreateListing = () => {
                   onChange={() => handleCheckboxChange("shipping")}
                   className="checkbox-input"
                 />
-                Shipping
+                <span>Shipping</span>
               </label>
               <label className="checkbox-label">
                 <input
@@ -1153,15 +1205,17 @@ const CreateListing = () => {
                   onChange={() => handleCheckboxChange("selfCollection")}
                   className="checkbox-input"
                 />
-                Self-collection
+                <span>Self-collection</span>
               </label>
             </div>
             {/* Additional Information Text Box */}
             {deliveryMethods.selfCollection && (
               <div className="collection-info">
-                <h4>Additional Information for Collection:</h4>
+                <h4 className="text-xl">
+                  Additional Information for Collection:
+                </h4>
                 <input
-                  placeholder="Provide details for self-collection..."
+                  placeholder=""
                   value={collectionInfo}
                   onChange={(e) => setCollectionInfo(e.target.value)}
                   className="collection-info-input"
@@ -1185,87 +1239,90 @@ const CreateListing = () => {
 
       case 5:
         return (
-          <div className="listing-container">
-            <div className="image-container">
-              <div className="image-preview">
-                {combined.map((image, index) => (
-                  <img
-                    key={index}
-                    src={image}
-                    alt={`preview-${index}`}
-                    className="main-image"
-                    style={{
-                      display: index === currentIndex ? "block" : "none",
-                    }}
-                  />
-                ))}
-              </div>
-              <div className="arrow-navigation">
-                <button
-                  className="arrow left"
-                  onClick={() => handleArrowKey("left")}
-                >
-                  &#x3C;
-                </button>
-                <button
-                  className="arrow right"
-                  onClick={() => handleArrowKey("right")}
-                >
-                  &#x3E;
-                </button>
-              </div>
-            </div>
-            <div className="details-container">
-              <h2 className="title">{title}</h2>
-              <p className="description">{description}</p>
-              <div className="options">
-                <div className="option-group">
-                  <span className="label">Colour:</span>
-                  {specifications.map((spec, index) => (
-                    <button key={index} className={`option ${spec.colour}`}>
-                      {spec.colour}
-                    </button>
+          <div className="listings-container">
+            <h2 className="header-font">Preview Listing</h2>
+            <div className="preview-listing-container">
+              <div className="image-container">
+                <div className="image-preview">
+                  {combined.map((image, index) => (
+                    <img
+                      key={index}
+                      src={image}
+                      alt={`preview-${index}`}
+                      className="main-image"
+                      style={{
+                        display: index === currentIndex ? "block" : "none",
+                      }}
+                    />
                   ))}
                 </div>
-                <div className="option-group">
-                  <span className="label">Size:</span>
-                  {specifications.map((spec, index) => (
-                    <button key={index} className={`option ${spec.size}`}>
-                      {spec.size}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="quantity-selector">
-                <span className="label">Quantity: </span>
-                {specifications.map((spec, index) => (
-                  <button key={index} className={`option ${spec.quantity}`}>
-                    {spec.quantity}
+                <div className="arrow-navigation">
+                  <button
+                    className="arrow left"
+                    onClick={() => handleArrowKey("left")}
+                  >
+                    &#x3C;
                   </button>
-                ))}
+                  <button
+                    className="arrow right"
+                    onClick={() => handleArrowKey("right")}
+                  >
+                    &#x3E;
+                  </button>
+                </div>
               </div>
-              <div className="shipping-options">
-                <button
-                  className={`shipping-option ${
-                    deliveryMethods.shipping ? "active" : ""
-                  }`}
-                >
-                  Shipping
-                </button>
-                <button
-                  className={`shipping-option ${
-                    deliveryMethods.selfCollection ? "active" : ""
-                  }`}
-                >
-                  Collection
-                </button>
+              <div className="details-container">
+                <h2 className="title">{title}</h2>
+                <p className="description">{description}</p>
+                <div className="options">
+                  <div className="option-group">
+                    <span className="label">Colour:</span>
+                    {specifications.map((spec, index) => (
+                      <button key={index} className={`option ${spec.colour}`}>
+                        {spec.colour}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="option-group">
+                    <span className="label">Size:</span>
+                    {specifications.map((spec, index) => (
+                      <button key={index} className={`option ${spec.size}`}>
+                        {spec.size}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="quantity-selector">
+                  <span className="label">Quantity: </span>
+                  {specifications.map((spec, index) => (
+                    <button key={index} className={`option ${spec.quantity}`}>
+                      {spec.quantity}
+                    </button>
+                  ))}
+                </div>
+                <div className="shipping-options">
+                  <button
+                    className={`shipping-option ${
+                      deliveryMethods.shipping ? "active" : ""
+                    }`}
+                  >
+                    Shipping
+                  </button>
+                  <button
+                    className={`shipping-option ${
+                      deliveryMethods.selfCollection ? "active" : ""
+                    }`}
+                  >
+                    Collection
+                  </button>
+                </div>
+                {deliveryMethods.selfCollection && (
+                  <textarea className="collection-info-static">
+                    {collectionInfo}
+                  </textarea>
+                )}
               </div>
-              {deliveryMethods.selfCollection && (
-                <textarea className="collection-info-static">
-                  {collectionInfo}
-                </textarea>
-              )}
             </div>
             <div className="action-buttons">
               {isEditing ? (
@@ -1331,6 +1388,17 @@ const CreateListing = () => {
       {/* Top Header Section */}
       <div className="top-container">
         <div className="logo">ELEOS</div>
+        <div className="search-bar-container">
+          <input
+            type="text"
+            placeholder="Search Products"
+            className="search-bar"
+            // value={search}
+            // onChange={(e) => setSearch(e.target.value)}
+          />
+          <IoIosSearch />
+        </div>
+        <div className="admin-name">Admin Name</div>
       </div>
       {/* Create Listing Steps */}
       <ToastContainer />

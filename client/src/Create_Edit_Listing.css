@@ -57,17 +57,17 @@
   border: 1px solid #ccc;
   border-radius: 8px;
   gap: 20px;
-}
-
-.delete-wrapper {
+  background-color: #e2eff6;
+  color: #e2eff6;
 }
 
 .image-container {
-  position: relative;
-  flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 500px;
+  position: relative;
 }
 
 .image-preview {
@@ -84,9 +84,9 @@
 }
 
 .arrow-navigation {
-  position: absolute;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
+  position: absolute;
   width: 100%;
 }
 
@@ -96,13 +96,14 @@
   font-size: 24px;
   cursor: pointer;
   padding: 10px;
+  width: 20px;
 }
 
 .details-container {
-  flex: 2;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  background-color: white;
 }
 
 .options {
@@ -161,9 +162,8 @@
 
 .collection-info {
   width: 100%;
-  border: 1px solid #ccc;
-  border-radius: 4px;
   padding: 10px;
+  margin-bottom: 10px;
 }
 
 .action-buttons {
@@ -202,10 +202,12 @@
 }
 
 .top-container {
-  flex: 0 0 auto; /* Header takes only the space it needs */
-  background-color: #f4f4f4; /* Slightly lighter gray for header */
-  padding: 10px 20px;
+  display: flex;
+  background-color: white; /* Slightly lighter gray for header */
+  padding: 30px;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Optional shadow for header */
+  gap: 10px;
+  justify-content: space-between;
 }
 
 .logo {
@@ -222,6 +224,7 @@
   border-radius: 10px; /* Optional rounded corners */
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Optional subtle shadow */
   margin: 20px; /* Add spacing around the white container */
+  background-color: #e2eff6;
 }
 
 .checkbox-label {
@@ -231,24 +234,41 @@
 }
 
 .checkbox-input {
-  width: 15px; /* Size of the checkbox */
-  height: 15px; /* Size of the checkbox */
+  width: 25px; /* Size of the checkbox */
+  height: 25px; /* Size of the checkbox */
   margin-right: 10px; /* Adds space between checkbox and text */
 }
 
-.searchbar {
-  flex: 1;
-  margin: 0 20px;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.checkbox-label span {
+  line-height: 1; /* Ensures text is aligned properly */
+  font-size: 25px; /* Adjust text size if necessary */
+}
+
+.search-bar {
+  width: 750px;
+  height: 40px;
+}
+
+.search-bar-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  width: 788px;
+  height: 60px;
+  align-items: center;
+  margin-bottom: 20px;
+  background-color: white;
+  border: 1px solid #adadad;
+  border-radius: 10px;
 }
 
 .admin-name {
   background-color: #f0f0f0;
   padding: 8px 16px;
   border-radius: 4px;
-  font-weight: bold;
+  font-weight: bolder;
+  height: 50px;
+  font-size: larger;
 }
 
 .listings-and-drafts-container {
@@ -277,28 +297,28 @@
 }
 
 .society-name {
-  background-color: #3b82f6; /* Primary blue background */
+  background-color: #2d5c93; /* Primary blue background */
   color: white; /* White text color */
   border: none; /* Remove default border */
   padding: 10px 20px; /* Inner spacing */
-  font-size: 20px; /* Font size */
-  border-radius: 8px; /* Rounded corners */
+  font-size: 30px; /* Font size */
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth animation */
-  cursor: pointer; /* Pointer cursor on hover */
+  cursor: pointer; /* Pointer cursor */
+  font-weight: bold; /* Bold text */
+  margin: 0 auto; /* Center the button */
 }
 
 .add-listing-button {
   background: linear-gradient(
     90deg,
-    #3b82f6,
-    #60a5fa
+    #c1e0a1,
+    #99edc3
   ); /* Gradient blue background */
-  color: white; /* Black text */
+  color: black; /* Black text */
   border: none; /* Remove border */
   padding: 10px 20px; /* Inner spacing */
   border-radius: 8px; /* Rounded corners */
-  font-size: 18px; /* Font size */
+  font-size: 20px; /* Font size */
   cursor: pointer; /* Pointer cursor */
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
   transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease; /* Smooth hover effects */
@@ -352,26 +372,34 @@
 .title {
   font-size: 20px;
   font-weight: bold;
+  color: black;
+}
+
+.description {
+  font-size: 20px;
+  color: black;
 }
 
 .input-title,
 .textarea-description {
   display: block;
   width: 100%;
-  margin: 10px 0;
+  margin: 20px 0px;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  font-size: 24px;
 }
 
 .textarea-description {
   height: 400px;
 }
 
-.font-bold {
-  font-size: 24px;
-  font-weight: bold;
+.header-font {
+  font-size: 40px;
   margin-bottom: 20px;
+  color: #18396b;
+  font-weight: bold;
 }
 
 .font-semi-bold {
@@ -426,10 +454,25 @@
   padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
+  width: 200px;
+  align-self: end;
+  margin: 5px 0;
 }
 
 .hidden-input {
   display: none;
+}
+
+.uploaded-files {
+  display: flex;
+  height: 200px;
+  background-color: white;
+}
+
+.file-item {
+  display: flex;
+  background: #fff;
+  padding: 5px 10px;
 }
 
 .image-preview-wrapper {
@@ -516,8 +559,9 @@
 }
 
 .delivery-methods-title {
-  font-size: 20px;
+  font-size: 30px;
   margin-bottom: 20px; /* Adjust this value as needed */
+  text-decoration: underline;
 }
 
 .collection-info-input {
@@ -525,8 +569,6 @@
   width: 100%;
   margin: 10px 0;
   padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
   height: 100px;
 }
 
@@ -559,6 +601,7 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-size: larger;
 }
 
 .continue-button {
@@ -568,6 +611,7 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-size: larger;
 }
 
 .error-message {
@@ -579,6 +623,13 @@
   width: 20vw; /* Align to input and button widths */
   border-radius: 5px; /* Rounded corners for error message */
   text-align: center;
+}
+
+.preview-listing-container {
+  display: flex;
+  margin: 20px;
+  background-color: white;
+  padding: 10px;
 }
 
 .listing-images {
