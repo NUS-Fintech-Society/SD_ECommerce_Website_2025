@@ -22,7 +22,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/", // Landing page route
-        element: <UserListings />,
+        element: <Landing />,
       },
       {
         path: "/home",
