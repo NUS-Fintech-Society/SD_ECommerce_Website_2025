@@ -11,44 +11,50 @@ const Signup: React.FC = () => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
 
-    const signupUser = async () => {
-        if (!email || !name || !password || !confirmPassword) {
-            setErrorMessage("Please enter all fields.");
-            return;
-        }
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
+  };
 
-        if (password !== confirmPassword) {
-            setErrorMessage(
-                "Passwords do not match. Please ensure both passwords are the same."
-            );
-            return;
-        }
-        console.log(name, email, password);
-        try {
-            const response = await apiRequest("users", "POST", "register", {
-                username: name,
-                email: email,
-                password: password,
-                isAdmin: false,
-                isSuperAdmin: false,
-            });
-            if (response.success) {
-                console.log("User registered successfully:", response.data);
-                navigate("/login");
-            } else {
-                console.error("Signup error:", response.message);
-                setErrorMessage(
-                    response.message ||
-                        "An error occurred during signup. Please try again."
-                );
-            }
-        } catch (error) {
-            console.error("Signup error:", error);
-            setErrorMessage(
-                "An error occurred during signup. Please try again."
-            );
-        }
-    };
+
+  const signupUser = async () => {
+
+    if (!email || !name || !password || !confirmPassword) {
+      setErrorMessage("Please enter all fields.");
+      return
+    }
+
+    if (!validateEmail(email)) {
+      setErrorMessage("Invalid Email Format.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setErrorMessage(
+        "Passwords do not match. Please ensure both passwords are the same."
+      );
+      return;
+    }
+
+    try {
+      const response = await apiRequest("users", "POST", "register", {
+        username: name,
+        email: email,
+        password: password,
+        isAdmin: false,
+        isSuperAdmin: false,
+      });
+      if (response.success) {
+        console.log("User registered successfully:", response.data);
+        navigate("/login");
+      } else {
+        console.error("Signup error:", response.message);
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      setErrorMessage("An error occurred during signup. Please try again.");
+    }
+  };
 
     return (
         <div className="main-container">
