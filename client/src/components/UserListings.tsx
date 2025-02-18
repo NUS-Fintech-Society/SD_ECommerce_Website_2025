@@ -105,6 +105,8 @@ const UserListings = () => {
                 alt={product.name}
                 className="product-image"
               />
+              <div className="product-name">{product.name}</div>
+              <div className="product-description">{product.description}</div>
             </div>
           ))}
         </div>

@@ -880,18 +880,29 @@
   background-color: #ddd; /* Default gray color */
   height: 100px; /* Adjust as needed */
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   font-weight: bold;
   font-size: 18px;
   border-radius: 8px;
   transition: transform 0.3s ease, background-color 0.3s ease; /* Smooth effect */
+  cursor: pointer; /* Pointer cursor */
 }
 
 .grid-item:hover {
   background-color: #b0b3b6; /* Darker gray for highlighted item */
   color: #e2eff6;
   transform: scale(1.05); /* Slight zoom effect */
+}
+
+.product-name {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.product-description {
+  font-size: 16px;
 }
 
 .society-name-user {
