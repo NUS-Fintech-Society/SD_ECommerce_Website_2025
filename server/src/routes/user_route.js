@@ -29,23 +29,45 @@ router.post("/register", async (req, res) => {
 
         const user = await User.findOne({ email: newUser.email });
         if (user) {
-            return res.status(400).send({ message: "User already exists" });
+            return res.status(400).send({ message: "Email is already in use" });
         }
 
         const salt = await bcrypt.genSalt(10);
         newUser.password = await bcrypt.hash(newUser.password, salt);
 
         await newUser.save();
-        const token = newUser.generateAuthToken();
+        // const token = newUser.generateAuthToken();
 
-        const data = {
-            token: token,
-            id: newUser.id,
-            isAdmin: newUser.isAdmin,
-            isSuperAdmin: newUser.isSuperAdmin,
-        };
+        // const data = {
+        //     token: token,
+        //     id: newUser.id,
+        //     isAdmin: newUser.isAdmin,
+        //     isSuperAdmin: newUser.isSuperAdmin,
+        // };
 
-        res.send(data);
+        // res.send(data);
+        // Generate verification token
+        const verificationToken = crypto.randomBytes(32).toString("hex");
+
+        const newUserVerification = new UserVerification({
+            userId: newUser._id,
+            email: newUser.email,
+            verificationToken,
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+        });
+
+        // Store pending email change in separate collection
+        await newUserVerification.save();
+
+        res.send({
+            message: "Please check your email for verification.",
+            data: {
+                id: newUser.id,
+                username: newUser.username,
+                email: newUser.email,
+                verificationToken: verificationToken,
+            },
+        });
     } catch (error) {
         console.error("Error registering user:", error);
         res.status(500).send({
@@ -72,6 +94,15 @@ router.post("/login", async (req, res) => {
             return res
                 .status(400)
                 .send({ message: "Invalid email or password" });
+        }
+
+        const userVerification = await UserVerification.findOne({
+            userId: user._id,
+        });
+        if (userVerification) {
+            return res.status(400).send({
+                message: "Please verify your email before logging in",
+            });
         }
 
         const token = user.generateAuthToken();
@@ -127,6 +158,12 @@ router.post("/update/:id", async (req, res) => {
         await user.save();
 
         if (isEmailChange) {
+            const existingUser = await User.findOne({ email: email });
+            if (existingUser) {
+                return res
+                    .status(400)
+                    .send({ message: "Email is already in use" });
+            }
             // Generate verification token
             const verificationToken = crypto.randomBytes(32).toString("hex");
 
