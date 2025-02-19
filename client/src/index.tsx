@@ -15,7 +15,6 @@ import AdminRequest from "./components/AdminRequestForm";
 import ManageAccounts from "./components/ManageAccounts";
 import AdminRequests from "./components/AdminRequests";
 
-
 const router = createBrowserRouter([
   {
     path: "/",
