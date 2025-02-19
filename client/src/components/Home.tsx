@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { apiRequest } from "../api/apiRequest";
+import HomeListings from "./HomeListings";
 
 const Home = () => {
   useEffect(() => {
@@ -132,9 +133,13 @@ const Home = () => {
     //checkoutCart();
     // sendEmail("vijay75011@gmail.com"); //Replace with user email address
   }, []);
+
   return (
     <>
-      <div>Welcome to ELEOS Home Page</div>;
+      <h1 className="p-2 text-2xl font-bold text-center my-4">
+        Welcome to ELEOS Home Page
+      </h1>
+      <HomeListings />
     </>
   );
 };
