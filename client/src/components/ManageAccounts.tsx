@@ -35,7 +35,8 @@ export default function ManageAccounts() {
   const fetchAccountData = async () => {
     const response = await apiRequest("admin", "GET", "", user);
       if (response.success) {
-          setAccounts(response.data);
+        console.log(response.data);
+        setAccounts(response.data);
     }
   }
 
@@ -178,7 +179,7 @@ export default function ManageAccounts() {
                       <li key={acc._id} className="border-b py-4 flex justify-between">
                         <div>
                             <div>Name: {acc.username}</div>
-                            <div>Role: {acc.email}</div>
+                            <div>Role: {acc.isSuperAdmin ? "super admin" : acc.isAdmin ? "admin" : ""}</div>
                         </div>
                         <button
                             className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600"

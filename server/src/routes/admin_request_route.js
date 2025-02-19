@@ -77,7 +77,13 @@ router.put("/accept/:id", async (req, res) => {
   
       acceptedRequest.status = 'accepted';
       const acceptedUser = await User.findById(acceptedRequest.user);
-      acceptedUser.isAdmin = true;
+
+      if (acceptedRequest.role === 'admin') {
+        acceptedUser.isAdmin = true;
+      } else {
+        acceptedUser.isAdmin = true;
+        acceptedUser.isSuperAdmin = true;
+      }
 
       acceptedRequest.save();
       acceptedUser.save();

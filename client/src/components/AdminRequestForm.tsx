@@ -42,7 +42,7 @@ const AdminRequest = () => {
     fetchUserData();
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -180,16 +180,19 @@ const AdminRequest = () => {
             {/* Role */}
             <div className="mb-4 flex items-center border-b-2 border-gray-500 pb-4">
               <label className="font-medium mx-4">Role:</label>
-              <input
+              <select
                 name="role"
-                type="text"
                 value={formData.role}
                 onChange={handleChange}
                 className="p-2 border border-gray-300 rounded-lg bg-gray-50 h-1/2"
-                placeholder="type here..."
                 required
-              />
+              >
+                <option value="">Select Role</option>
+                <option value="admin">Admin</option>
+                <option value="super admin">Super Admin</option>
+              </select>
             </div>
+
 
             {/* Mobile Number */}
             <div className="mb-4 flex items-center border-b-2 border-gray-500 pb-4">
