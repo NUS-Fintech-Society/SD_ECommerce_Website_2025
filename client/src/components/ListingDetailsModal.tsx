@@ -105,6 +105,7 @@ function ListingDetailsModal({
   };
 
   const handleBuyNow = () => {
+    // handle checkout logic here
     console.log("Buying now:", {
       listing: listing._id,
       specification: selectedSpec,

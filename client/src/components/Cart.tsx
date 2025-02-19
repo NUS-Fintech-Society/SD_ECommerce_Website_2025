@@ -140,7 +140,7 @@ function Cart() {
               colorScheme="blue"
               size="lg"
               width="full"
-              onClick={() => console.log("Proceed to checkout")}
+              onClick={() => console.log("Proceed to checkout")} // Add checkout logic here
             >
               Proceed to Checkout
             </Button>
