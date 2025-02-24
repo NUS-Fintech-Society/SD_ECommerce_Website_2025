@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import { AuthProvider } from "./providers/AuthProvider";
+import { CartProvider } from "./providers/CartProvider";
 
 const App = () => {
   const location = useLocation();
@@ -9,10 +10,12 @@ const App = () => {
 
   return (
     <AuthProvider>
-      <div className="w-full pt-4">
-        {shouldShowNavbar && <Navbar />}
-        <Outlet />
-      </div>
+      <CartProvider>
+        <div className="w-full pt-4">
+          {shouldShowNavbar && <Navbar />}
+          <Outlet />
+        </div>
+      </CartProvider>
     </AuthProvider>
   );
 };

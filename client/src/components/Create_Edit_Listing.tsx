@@ -26,7 +26,12 @@ type Listing = {
     description: string;
     images: string[]; // Assuming images are files (e.g., from input type="file")
     sizingChart: string[];
-    specifications: { colour: string; size: string; quantity: string }[];
+    specifications: {
+        colour: string;
+        size: string;
+        quantity: string;
+        price: string;
+    }[];
     deliveryMethods: {
         shipping: boolean;
         selfCollection: boolean;
@@ -40,7 +45,12 @@ type Drafts = {
     description: string;
     images: string[]; // Assuming images are files (e.g., from input type="file")
     sizingChart: string[];
-    specifications: { colour: string; size: string; quantity: string }[];
+    specifications: {
+        colour: string;
+        size: string;
+        quantity: string;
+        price: string;
+    }[];
     deliveryMethods: {
         shipping: boolean;
         selfCollection: boolean;
@@ -345,9 +355,10 @@ const CreateListing = () => {
     const [colour, setColour] = useState("");
     const [size, setSize] = useState("");
     const [quantity, setQuantity] = useState("");
+    const [price, setPrice] = useState("");
     const [specifications, setSpecifications] = useState<
-        { colour: string; size: string; quantity: string }[]
-    >([{ colour: "", size: "", quantity: "" }]); // Initialize with one empty spec
+        { colour: string; size: string; quantity: string; price: string }[]
+    >([{ colour: "", size: "", quantity: "", price: "" }]); // Initialize with one empty spec
 
     const handleAddMoreClick = () => {
         if (colour.length > 60) {
@@ -368,6 +379,12 @@ const CreateListing = () => {
             );
             return;
         }
+        if (price.length > 10) {
+            toast.error(
+                "The quantity can be up to 10 digits long. Valid characters include all alphanumeric characters and spaces."
+            );
+            return;
+        }
         // if (isNaN( parseInt(quantity, 10)) || parseInt(quantity, 10)<0) {
         //   setErrorMessage("Please enter a valid quantity.");
         //   return; // Don't add to the specifications if the quantity is invalid
@@ -375,11 +392,12 @@ const CreateListing = () => {
         setErrorMessage(""); // Clear error message
         setSpecifications((prev) => [
             ...prev,
-            { colour, size, quantity }, // Convert quantity to number
+            { colour, size, quantity, price }, // Convert quantity and price to number
         ]);
         setColour("");
         setSize("");
         setQuantity("");
+        setPrice("");
     };
 
     const handleSpecificationChange = (
@@ -413,6 +431,24 @@ const CreateListing = () => {
             );
             return;
         }
+
+        if (price.length > 10) {
+            toast.error(
+                "The price can be up to 10 digits long. Valid characters include all alphanumeric characters and spaces."
+            );
+            return;
+        }
+
+        // Remove items with incomplete specifications
+        setSpecifications(
+            specifications.filter(
+                (spec) =>
+                    spec.colour.trim() !== "" &&
+                    spec.size.trim() !== "" &&
+                    spec.quantity.trim() !== "" &&
+                    spec.price.trim() != ""
+            )
+        );
 
         const isDuplicate =
             colour.length > 0 && size.length > 0
@@ -1251,6 +1287,7 @@ const CreateListing = () => {
                             <h3>Colour</h3>
                             <h3>Size</h3>
                             <h3>Quantity</h3>
+                            <h3>Price ($)</h3>
                         </div>
                         <div className="specifications-container">
                             {/* Render mapped specification fields if there are items in the specifications array */}
@@ -1291,6 +1328,19 @@ const CreateListing = () => {
                                             handleSpecificationChange(
                                                 index,
                                                 "quantity",
+                                                e.target.value
+                                            )
+                                        }
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="Price"
+                                        className="input-title"
+                                        value={spec.price}
+                                        onChange={(e) =>
+                                            handleSpecificationChange(
+                                                index,
+                                                "price",
                                                 e.target.value
                                             )
                                         }
