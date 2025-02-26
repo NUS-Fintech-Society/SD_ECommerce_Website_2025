@@ -2,7 +2,11 @@ const mongoose = require("mongoose");
 
 const adminRequestSchema = new mongoose.Schema({
     name: { type: String, required: true },
-    role: { type: String, required: true },
+    role: { 
+        type: String, 
+        required: true, 
+        enum: ['admin', 'super admin']
+    },
     mobileNumber: { type: String, required: true },
     organisation: { type: String, required: true },
     status: { 

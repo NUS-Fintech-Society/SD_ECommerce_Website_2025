@@ -1,7 +1,7 @@
 const express = require('express')
 require('dotenv').config();
 const isAuth = require("./middleware/auth");
-const bodyParser = require("./middleware/body_parser")
+const bodyParser = require("./middleware/body_parser");
 const cors = require('cors');
 
 const product = require("./routes/product_route");
@@ -12,6 +12,7 @@ const listingsRoute = require("./routes/listings_route");
 const draftsRoute = require("./routes/drafts_route");
 const userVerification = require("./routes/user_verification_route");
 const adminRequest = require("./routes/admin_request_route");
+const admin = require("./routes/admin_route");
 
 
 
@@ -44,6 +45,7 @@ app.use("/verify", userVerification);
 app.use("/listings", listingsRoute);
 app.use("/drafts", draftsRoute);
 app.use("/adminRequest", adminRequest);
+app.use("/admin", admin);
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
