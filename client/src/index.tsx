@@ -14,6 +14,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 import AdminRequest from "./components/AdminRequestForm";
 import ManageAccounts from "./components/ManageAccounts";
 import AdminRequests from "./components/AdminRequests";
+import Cart from "./components/Cart";
 
 const router = createBrowserRouter([
   {
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
       {
         path: "/profile",
         element: <Profile />,
+      },
+      {
+        path: "/cart",
+        element: <Cart />,
       },
       {
         path: "/profile/edit",
