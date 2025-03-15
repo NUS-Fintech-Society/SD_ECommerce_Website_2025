@@ -125,10 +125,167 @@ const Home = () => {
       }
     };
 
-    // Call the test functions
+    // Test order tracking
+    const testTrackOrder = async (orderId: string) => {
+      try {
+        const response = await apiRequest("order", "GET", `track/${orderId}`);
+        if (response.success) {
+          console.log("Order tracking info:", response.data);
+        } else {
+          console.error("Error tracking order:", response.message);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+
+    // Test checkout with delivery method
+    const testCheckoutWithDelivery = async () => {
+      try {
+        const response = await apiRequest(
+          "order",
+          "POST",
+          "create-checkout-session",
+          {
+            userID: "your_user_id_here",
+            order: {
+              items: [
+                {
+                  product: { title: "Product 1", price: 10 },
+                  quantity: 2,
+                },
+                {
+                  product: { title: "Product 2", price: 5 },
+                  quantity: 1,
+                },
+              ],
+            },
+            deliveryMethod: "standard",
+          }
+        );
+        if (response.success) {
+          window.open(response.data.url, "_blank", "width=600,height=800");
+          console.log("Checkout with delivery successful:", response);
+        } else {
+          console.error("Error checking out:", response.message);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+
+    // Create order and test delivery selection
+    const testOrderAndDelivery = async (productId: string) => {
+      try {
+        // First create an order
+        const orderResponse = await apiRequest("order", "POST", "create", {
+          userID: "6724e127710ad07070a6cfba",
+          firstName: "Test",
+          lastName: "User",
+          address: "123 Test St",
+          city: "Test City",
+          country: "Test Country",
+          zipCode: "12345",
+          items: [
+            {
+              product: productId, // Now using the productId parameter
+              quantity: 2,
+            },
+          ],
+        });
+
+        if (orderResponse.success) {
+          console.log("Order created:", orderResponse.data);
+
+          // Now test delivery selection with the new order ID
+          const deliveryResponse = await apiRequest(
+            "order",
+            "POST",
+            "select-delivery",
+            {
+              orderId: orderResponse.data.order._id,
+              deliveryMethod: "standard",
+            }
+          );
+
+          if (deliveryResponse.success) {
+            console.log("Delivery method selected:", deliveryResponse.data);
+
+            // Test tracking the order
+            await testTrackOrder(orderResponse.data.order._id);
+          }
+        }
+      } catch (error) {
+        console.error("Error in order and delivery test:", error);
+      }
+    };
+
+    // Test get all products
+    const fetchAllProducts = async () => {
+      try {
+        const response = await apiRequest("product", "GET", "");
+        if (response.success) {
+          console.log("Available products:", response.data);
+          // Use the first product's ID for testing
+          if (response.data && response.data.length > 0) {
+            const productId = response.data[0]._id;
+            console.log("Using product ID:", productId);
+            // Now test order creation with this product ID
+            testOrderAndDelivery(productId);
+          }
+        } else {
+          console.error("Error fetching products:", response.message);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+
+    // Test create product
+    const createTestProduct = async () => {
+      try {
+        const response = await apiRequest("product", "POST", "create", {
+          title: "Test Product",
+          description: "A test product for order testing",
+          price: 29.99,
+          category: "Test",
+          imageUrl: "https://example.com/test-image.jpg",
+          stockQuantity: 100,
+          collectionInfo: {
+            name: "Test Collection",
+            description: "Test collection for product",
+          },
+          deliveryMethods: {
+            shipping: {
+              available: true,
+              cost: 5.99,
+            },
+            selfCollection: {
+              available: true,
+              location: "Test Store Location",
+            },
+          },
+        });
+
+        if (response.success) {
+          console.log("Product created:", response.data);
+          await fetchAllProducts();
+        } else {
+          console.error("Error creating product:", response.message);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+
+    // Call the test function
     console.log("Testing API Endpoints:");
+    // createTestProduct(); // Call this first
+    fetchAllProducts();
+    testOrderAndDelivery("67d5a64f4cd1dcb0d66abf1d");
+    // testCheckoutWithDelivery();
     //registerUser();
-    //fetchAllUsers();
+    fetchAllUsers();
     //fetchUserById("60d21b4667d0d8992e610c85"); // Replace with a valid user ID
     //checkoutCart();
     // sendEmail("vijay75011@gmail.com"); //Replace with user email address

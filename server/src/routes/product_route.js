@@ -31,6 +31,8 @@ router.post("/create", async (req, res) => {
     category: req.body.data.category,
     thumbnail: req.body.data.thumbnail,
     images: req.body.data.images,
+    collectionInfo: req.body.data.collectionInfo,
+    deliveryMethods: req.body.data.deliveryMethods,
   });
 
   await Product.create(newProduct);
