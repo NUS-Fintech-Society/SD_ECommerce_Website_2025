@@ -8,6 +8,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 router.post("/create-checkout-session", async (req, res) => {
   try {
     const { order, deliveryMethod } = req.body.data;
+    console.log(order, deliveryMethod);
 
     // Calculate delivery fee
     let deliveryFee = 0;
@@ -50,8 +51,8 @@ router.post("/create-checkout-session", async (req, res) => {
           quantity: 1,
         },
       ],
-      success_url: `${process.env.FRONTEND_URL}/order/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL}/order/cancel`,
+      success_url: `http://localhost:5001/order/success`,
+      cancel_url: `http://localhost:5001/order/cancel`,
     });
 
     res.status(200).send({
@@ -147,11 +148,13 @@ router.post("/create", async (req, res) => {
       zipCode: req.body.data.zipCode,
       items: req.body.data.items,
       createdDate: new Date(),
+      deliveryMethod: req.body.data.deliveryMethod,
+      totalAmount: req.body.data.totalAmount,
     });
 
     await newOrder.save(); // Save the new order to the database
     res
-      .status(201)
+      .status(200)
       .send({ message: "Order created successfully", order: newOrder });
   } catch (err) {
     res.status(500).send({ message: "Error creating order", error: err });
@@ -254,7 +257,8 @@ router.put("/delivery-status/:id", async (req, res) => {
 // Select delivery method
 router.post("/select-delivery", async (req, res) => {
   try {
-    const { orderId, deliveryMethod } = req.body;
+    const { orderId, deliveryMethod } = req.body.data;
+
     const order = await Order.findById(orderId);
 
     if (!order) {
@@ -291,6 +295,7 @@ router.post("/select-delivery", async (req, res) => {
       estimatedDeliveryDate: order.estimatedDeliveryDate,
     });
   } catch (err) {
+    console.error("Error selecting delivery method:", err); // Log any errors
     res
       .status(500)
       .send({ message: "Error selecting delivery method", error: err });

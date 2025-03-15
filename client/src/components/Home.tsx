@@ -147,7 +147,7 @@ const Home = () => {
           "POST",
           "create-checkout-session",
           {
-            userID: "your_user_id_here",
+            userID: "6724e127710ad07070a6cfba",
             order: {
               items: [
                 {
@@ -177,6 +177,18 @@ const Home = () => {
     // Create order and test delivery selection
     const testOrderAndDelivery = async (productId: string) => {
       try {
+        // Calculate total amount
+        const items = [
+          {
+            product: productId,
+            quantity: 2,
+          },
+        ];
+        const totalAmount = items.reduce(
+          (total, item) => total + item.quantity * 10,
+          0
+        ); // Assuming price is 10 for simplicity
+
         // First create an order
         const orderResponse = await apiRequest("order", "POST", "create", {
           userID: "6724e127710ad07070a6cfba",
@@ -186,16 +198,17 @@ const Home = () => {
           city: "Test City",
           country: "Test Country",
           zipCode: "12345",
-          items: [
-            {
-              product: productId, // Now using the productId parameter
-              quantity: 2,
-            },
-          ],
+          items: items.map((item) => ({
+            product: item.product, // Pass product ID directly
+            quantity: item.quantity,
+          })),
+          totalAmount: totalAmount,
+          deliveryMethod: "standard", // Add delivery method
         });
 
         if (orderResponse.success) {
-          console.log("Order created:", orderResponse.data);
+          const orderId = orderResponse.data.order._id;
+          console.log("Order created:", orderId); // Log the orderId
 
           // Now test delivery selection with the new order ID
           const deliveryResponse = await apiRequest(
@@ -203,7 +216,7 @@ const Home = () => {
             "POST",
             "select-delivery",
             {
-              orderId: orderResponse.data.order._id,
+              orderId: orderId,
               deliveryMethod: "standard",
             }
           );
@@ -212,7 +225,7 @@ const Home = () => {
             console.log("Delivery method selected:", deliveryResponse.data);
 
             // Test tracking the order
-            await testTrackOrder(orderResponse.data.order._id);
+            await testTrackOrder(orderId);
           }
         }
       } catch (error) {
@@ -281,13 +294,13 @@ const Home = () => {
     // Call the test function
     console.log("Testing API Endpoints:");
     // createTestProduct(); // Call this first
-    fetchAllProducts();
-    testOrderAndDelivery("67d5a64f4cd1dcb0d66abf1d");
-    // testCheckoutWithDelivery();
+    // fetchAllProducts();
+    // testOrderAndDelivery("67d5a64f4cd1dcb0d66abf1d");
+    testCheckoutWithDelivery();
     //registerUser();
-    fetchAllUsers();
+    // fetchAllUsers();
     //fetchUserById("60d21b4667d0d8992e610c85"); // Replace with a valid user ID
-    //checkoutCart();
+    // checkoutCart();
     // sendEmail("vijay75011@gmail.com"); //Replace with user email address
   }, []);
 
