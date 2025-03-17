@@ -3,10 +3,43 @@ import { useCart } from "../providers/CartProvider";
 import { Button } from "@chakra-ui/react";
 import { FaTrash, FaShoppingCart } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { apiRequest } from "../api/apiRequest";
+import { useAuth } from "../providers/AuthProvider";
 
 function Cart() {
     const { items, removeFromCart, updateQuantity, getCartTotal } = useCart();
     const navigate = useNavigate();
+    const { user, dispatch } = useAuth();
+
+    const handleCheckout = async () => {
+        const order = {
+            items: items.map((item) => ({
+                product: {
+                    title: item.title,
+                    price: parseFloat(item.specification.price),
+                },
+                quantity: item.quantity,
+            })),
+        };
+
+        const hasShipping = items.some(
+            (item) => item.deliveryMethod === "shipping"
+        );
+        const deliveryMethod = hasShipping ? "standard" : "self-collection"; // Need to change this based on user selection
+
+        const response = await apiRequest(
+            "order",
+            "POST",
+            "create-checkout-session",
+            { order, deliveryMethod, userID: user?._id }
+        );
+
+        if (response.success) {
+            window.open(response.data.url, "_blank");
+        } else {
+            console.error("Error creating checkout session:", response.message);
+        }
+    };
 
     if (items.length === 0) {
         return (
@@ -163,7 +196,7 @@ function Cart() {
                             colorScheme="blue"
                             size="lg"
                             width="full"
-                            onClick={() => console.log("Proceed to checkout")} // Add checkout logic here
+                            onClick={handleCheckout} // Add checkout logic here
                         >
                             Proceed to Checkout
                         </Button>
