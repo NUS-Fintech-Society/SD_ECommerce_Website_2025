@@ -21,7 +21,11 @@ function Cart() {
                 quantity: item.quantity,
             })),
         };
-        const deliveryMethod = "standard"; // Need to change this based on user selection
+
+        const hasShipping = items.some(
+            (item) => item.deliveryMethod === "shipping"
+        );
+        const deliveryMethod = hasShipping ? "standard" : "self-collection"; // Need to change this based on user selection
 
         const response = await apiRequest(
             "order",
