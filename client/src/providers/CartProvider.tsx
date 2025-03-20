@@ -5,6 +5,7 @@ import React, {
     ReactNode,
     useEffect,
 } from "react";
+import { Listing } from "../components/HomeListings";
 
 interface CartItem {
     listingId: string;
@@ -36,6 +37,8 @@ interface CartContextType {
     clearCart: () => void;
     getCartTotal: () => number;
     getItemCount: () => number;
+    updateCartItems: (updatedListing: Listing) => void;
+    removeCartItems: (listingId: string) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -131,6 +134,46 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return items.reduce((count, item) => count + item.quantity, 0);
     };
 
+    const updateCartItems = (updatedListing: Listing) => {
+        setItems((currentItems) =>
+            currentItems.map((item) =>
+                item.listingId === updatedListing._id
+                    ? {
+                          ...item,
+                          title: updatedListing.title,
+                          image: updatedListing.images[0] || item.image,
+                          specification: {
+                              ...item.specification,
+                              price:
+                                  updatedListing.specifications.find(
+                                      (spec) =>
+                                          spec.colour ===
+                                              item.specification.colour &&
+                                          spec.size === item.specification.size
+                                  )?.price || item.specification.price,
+                              quantity:
+                                  updatedListing.specifications.find(
+                                      (spec) =>
+                                          spec.colour ===
+                                              item.specification.colour &&
+                                          spec.size === item.specification.size
+                                  )?.quantity || item.specification.quantity,
+                          },
+                          deliveryMethod: updatedListing.deliveryMethods
+                              .shipping
+                              ? "shipping"
+                              : "selfCollection",
+                      }
+                    : item
+            )
+        );
+    };
+    const removeCartItems = (listingId: string) => {
+        setItems((currentItems) =>
+            currentItems.filter((item) => item.listingId !== listingId)
+        );
+    };
+
     return (
         <CartContext.Provider
             value={{
@@ -141,6 +184,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
                 clearCart,
                 getCartTotal,
                 getItemCount,
+                updateCartItems,
+                removeCartItems,
             }}
         >
             {children}

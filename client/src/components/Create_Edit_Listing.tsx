@@ -7,6 +7,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { isTemplateExpression } from "typescript";
 import { IoIosSearch } from "react-icons/io";
 import { useAuth } from "../providers/AuthProvider";
+import { useCart } from "../providers/CartProvider";
 // import {
 //   AlertDialog,
 //   AlertDialogBody,
@@ -79,6 +80,7 @@ const CreateListing = () => {
     const [sizingChartFileNames, setSizingChartFileNames] = useState<string[]>(
         []
     );
+    const { updateCartItems } = useCart();
 
     const fetchListings = async () => {
         try {
@@ -554,6 +556,7 @@ const CreateListing = () => {
     const handleSaveChangesClick = async (item: Listing | Drafts) => {
         // Construct the new data object for either a listing or draft
         const newData = {
+            _id: item._id,
             title: title,
             description: description,
             images: images,
@@ -577,6 +580,9 @@ const CreateListing = () => {
 
             if (response.success) {
                 console.log("Changes saved successfully:", response.data);
+                if (collection === "listings") {
+                    updateCartItems(newData);
+                }
             } else {
                 console.error("Failed to save changes:", response.message);
             }

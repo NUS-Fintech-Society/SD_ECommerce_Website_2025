@@ -17,7 +17,9 @@ import {
 } from "@chakra-ui/react";
 import { Listing } from "./HomeListings";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { useAuth } from "../providers/AuthProvider";
 import { useCart } from "../providers/CartProvider";
+import { apiRequest } from "../api/apiRequest";
 
 interface ListingDetailsModalProps {
     isOpen: boolean;
@@ -40,6 +42,7 @@ function ListingDetailsModal({
     const [selectedDelivery, setSelectedDelivery] = useState<
         "shipping" | "selfCollection" | null
     >(null);
+    const { user } = useAuth();
     const [quantity, setQuantity] = useState(1);
     const { addToCart } = useCart();
 
@@ -105,7 +108,7 @@ function ListingDetailsModal({
         handleClose(); // Close modal after adding to cart
     };
 
-    const handleBuyNow = () => {
+    const handleBuyNow = async () => {
         // handle checkout logic here
         console.log("Buying now:", {
             listing: listing._id,
@@ -113,6 +116,38 @@ function ListingDetailsModal({
             delivery: selectedDelivery,
             quantity: quantity,
         });
+        if (!selectedSpec || !selectedDelivery) {
+            alert("Please select both specification and delivery method");
+            return;
+        }
+
+        const order = {
+            items: [
+                {
+                    product: {
+                        title: listing.title,
+                        price: parseFloat(selectedSpec.price),
+                    },
+                    quantity: quantity,
+                },
+            ],
+        };
+
+        const deliveryMethod =
+            selectedDelivery === "shipping" ? "standard" : "self-collection";
+
+        const response = await apiRequest(
+            "order",
+            "POST",
+            "create-checkout-session",
+            { order, deliveryMethod, userID: user?._id }
+        );
+
+        if (response.success) {
+            window.open(response.data.url, "_blank");
+        } else {
+            console.error("Error creating checkout session:", response.message);
+        }
     };
 
     const handleQuantityChange = (value: number) => {

@@ -18,19 +18,55 @@ router.get("/:id", async (req, res) => {
 });
 
 router.post("/register", async (req, res) => {
+    // Helper function to validate email format using regex
+    const isValidEmail = (email) => {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return emailRegex.test(email);
+    };
     try {
-        const newUser = new User({
-            username: req.body.data.username,
-            email: req.body.data.email,
-            password: req.body.data.password,
-            isAdmin: req.body.data.isAdmin,
-            isSuperAdmin: req.body.data.isSuperAdmin,
-        });
+        const {
+            username,
+            email,
+            password,
+            isAdmin,
+            isSuperAdmin,
+        } = req.body.data;
 
-        const user = await User.findOne({ email: newUser.email });
-        if (user) {
-            return res.status(400).send({ message: "Email is already in use" });
+        // Check for missing fields
+        if (!username || !email || !password) {
+            return res.status(400).send({ message: "All fields are required" });
         }
+
+        // Validate email format
+        if (!isValidEmail(email)) {
+            return res.status(400).send({ message: "Invalid email format" });
+        }
+
+        // Validate password length
+        if (password.length < 8) {
+            return res.status(400).send({
+                message: "Password must be at least 8 characters long",
+            });
+        }
+
+        // Check if the email or username already exists
+        const existingUserByEmail = await User.findOne({ email });
+        if (existingUserByEmail) {
+            return res.status(400).send({ message: "Email already in use" });
+        }
+
+        const existingUserByUsername = await User.findOne({ username });
+        if (existingUserByUsername) {
+            return res.status(400).send({ message: "Username already taken" });
+        }
+
+        const newUser = new User({
+            username,
+            email,
+            password,
+            isAdmin,
+            isSuperAdmin,
+        });
 
         const salt = await bcrypt.genSalt(10);
         newUser.password = await bcrypt.hash(newUser.password, salt);
@@ -80,9 +116,7 @@ router.post("/login", async (req, res) => {
     try {
         const user = await User.findOne({ email: req.body.data.email });
         if (!user) {
-            return res
-                .status(400)
-                .send({ message: "Invalid email or password" });
+            return res.status(400).send({ message: "User not found" });
         }
 
         const validPassword = await bcrypt.compare(
@@ -93,7 +127,7 @@ router.post("/login", async (req, res) => {
         if (!validPassword) {
             return res
                 .status(400)
-                .send({ message: "Invalid email or password" });
+                .send({ message: "Wrong password, please try again!" });
         }
 
         const userVerification = await UserVerification.findOne({

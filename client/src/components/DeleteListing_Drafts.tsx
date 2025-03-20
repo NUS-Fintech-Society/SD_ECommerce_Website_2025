@@ -12,6 +12,7 @@ import {
     useDisclosure,
 } from "@chakra-ui/react";
 import { useAuth } from "../providers/AuthProvider";
+import { useCart } from "../providers/CartProvider";
 import { useNavigate } from "react-router-dom";
 import { Trash2 } from "lucide-react";
 import { apiRequest } from "../api/apiRequest";
@@ -35,7 +36,7 @@ function DeleteListing_Drafts({
     const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
     const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
-
+    const { removeCartItems } = useCart();
     // Generate a random 4-digit code
     const generateRandomCode = () => {
         const code = Math.floor(1000 + Math.random() * 9000).toString();
@@ -72,6 +73,9 @@ function DeleteListing_Drafts({
 
             if (response.success) {
                 setIsSuccessDialogOpen(true); // Open success dialog
+                if (collection === "listings") {
+                    removeCartItems(itemId);
+                }
                 setTimeout(() => {
                     window.location.reload();
                     navigate("/admin");

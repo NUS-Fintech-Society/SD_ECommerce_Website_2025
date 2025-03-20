@@ -40,6 +40,11 @@ const Signup: React.FC = () => {
             return;
         }
 
+        if (password.length < 8) {
+            setErrorMessage("Password must be at least 8 characters long.");
+            return;
+        }
+
         if (password !== confirmPassword) {
             setErrorMessage(
                 "Passwords do not match. Please ensure both passwords are the same."
