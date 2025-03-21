@@ -33,7 +33,7 @@ const Login: React.FC = () => {
                 );
                 dispatch({ type: "LOGIN", payload: user.data });
 
-                console.log("Login successful:", response.data);
+                // console.log("Login successful:", response.data);
                 navigate("/home");
             } else {
                 setErrorMessage(

@@ -19,7 +19,30 @@ const mongoose = require("mongoose");
 const app = express();
 const isProduction = process.env.NODE_ENV === "production";
 const frontendURL = process.env.FRONTEND_URL || "http://localhost:3000";
+// ✅ Apply allowCors middleware before routes
+const allowCors = (req, res, next) => {
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader(
+        "Access-Control-Allow-Origin",
+        isProduction ? frontendURL : "*"
+    );
+    res.setHeader(
+        "Access-Control-Allow-Methods",
+        "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+    );
+    res.setHeader(
+        "Access-Control-Allow-Headers",
+        "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
+    );
 
+    if (req.method === "OPTIONS") {
+        return res.status(200).end();
+    }
+
+    next();
+};
+
+app.use(allowCors); // ✅ Apply CORS middleware globally
 const corsOptions = {
     origin: isProduction ? frontendURL : "*",
     credentials: true, //access-control-allow-credentials:true
@@ -28,13 +51,8 @@ const corsOptions = {
     optionSuccessStatus: 200,
 };
 
-mongoose
-    .connect(`${process.env.MONGO_URI}`) // Changing to MongoAtlas //Use localhost for now
-    .then(() => console.log("Connected to MongoDB..."))
-    .catch((err) => console.error("Could not connect to MongoDB..."));
-
 app.use(express.json());
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 app.use(isAuth);
 app.use(bodyParser);
 
@@ -47,6 +65,11 @@ app.use("/listings", listingsRoute);
 app.use("/drafts", draftsRoute);
 app.use("/adminRequest", adminRequest);
 app.use("/admin", admin);
+
+mongoose
+    .connect(`${process.env.MONGO_URI}`) // Changing to MongoAtlas //Use localhost for now
+    .then(() => console.log("Connected to MongoDB..."))
+    .catch((err) => console.error("Could not connect to MongoDB..."));
 
 if (!isProduction) {
     const port = process.env.PORT || 5000;
