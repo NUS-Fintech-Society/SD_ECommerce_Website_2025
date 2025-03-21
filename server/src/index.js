@@ -22,10 +22,7 @@ const frontendURL = process.env.FRONTEND_URL || "http://localhost:3000";
 // ✅ Apply allowCors middleware before routes
 const allowCors = (req, res, next) => {
     res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader(
-        "Access-Control-Allow-Origin",
-        isProduction ? frontendURL : "*"
-    );
+    res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader(
         "Access-Control-Allow-Methods",
         "GET,OPTIONS,PATCH,DELETE,POST,PUT"
@@ -44,7 +41,7 @@ const allowCors = (req, res, next) => {
 
 app.use(allowCors); // ✅ Apply CORS middleware globally
 const corsOptions = {
-    origin: isProduction ? frontendURL : "*",
+    origin: "*",
     credentials: true, //access-control-allow-credentials:true
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
