@@ -17,5 +17,16 @@
                 "Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
             }
         }
-    ]
+    ],
+    "build": {
+        "env": {
+            "MONGO_URI": "@MONGO_URI",
+            "SECRET_KEY": "@SECRET_KEY",
+            "STRIPE_SECRET_KEY": "@STRIPE_SECRET_KEY",
+            "SMTP_USER": "@SMTP_USER",
+            "SMTP_PASS": "@SMTP_PASS",
+            "PORT": "@PORT",
+            "FRONTEND_URL": "@FRONTEND_URL"
+        }
+    }
 }
