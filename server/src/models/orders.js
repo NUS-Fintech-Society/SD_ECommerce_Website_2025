@@ -29,11 +29,10 @@ const orderSchema = new mongoose.Schema({
   estimatedDeliveryDate: { type: Date },
   items: [
     {
-      product: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Product",
-        required: true,
-      },
+      title: {type: String},
+      colour : {type: String},
+      size : {type: String},
+      images: [{ type: String }],
       quantity: { type: Number, required: true },
     },
   ],
@@ -47,5 +46,4 @@ const orderSchema = new mongoose.Schema({
 });
 
 const Order = mongoose.model("Order", orderSchema);
-
-exports.Order = Order;
+module.exports = { Order };

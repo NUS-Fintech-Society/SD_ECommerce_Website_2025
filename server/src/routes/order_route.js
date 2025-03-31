@@ -3,12 +3,36 @@ const mongoose = require("mongoose");
 const { Order } = require("../models/orders");
 const router = express.Router();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const Product = require('../../src/models/products');
 
-// Create a checkout session
 router.post("/create-checkout-session", async (req, res) => {
   try {
     const { order, deliveryMethod } = req.body.data;
     console.log(order, deliveryMethod);
+
+    const orderItems = await Promise.all(
+      order.items.map(async (item) => {
+        try {
+          const product = await Product.findOne({ title: item.product.title });
+
+          if (!product) {
+            throw new Error(`Product with title ${item.product.title} not found.`);
+          }
+
+          return {
+            title : product.title,
+            colour : product.specifications[0].colour,
+            size: product.specifications[0].size,
+            images: product.images,
+            quantity: item.quantity,
+
+          };
+        } catch (err) {
+          console.error(`Error fetching product: ${err.message}`);
+          throw err;
+        }
+      })
+    );
 
     // Calculate delivery fee
     let deliveryFee = 0;
@@ -23,6 +47,25 @@ router.post("/create-checkout-session", async (req, res) => {
         deliveryFee = 0.0;
         break;
     }
+    const totalPriceProduct = isNaN(order.totalAmount) ? 0 : parseFloat(order.totalAmount);
+
+    //TODO: REPLACE these values with actual inputs from user 
+    const newOrder = new Order({
+      userID: "userID",
+      firstName: "firstName",
+      lastName: "lastName",
+      address: "address",
+      city: "city",
+      country: "country",
+      zipCode: "zipCode",
+      items: orderItems,
+      createdDate: new Date(),
+      deliveryMethod: deliveryMethod,
+      totalAmount: totalPriceProduct + deliveryFee,
+    });
+
+    // Save the new order to the database
+    await newOrder.save();
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -55,17 +98,27 @@ router.post("/create-checkout-session", async (req, res) => {
       cancel_url: `http://localhost:5001/order/cancel`,
     });
 
+    // Send the response once, after the order is saved
     res.status(200).send({
       message: "Checkout session created",
       url: session.url,
     });
   } catch (err) {
-    res.status(500).send({
-      message: "Error creating checkout session",
-      error: err,
-    });
+    // Catch any errors and send a single response
+    console.error("Error in checkout session:", err.message);
+    
+    // Check if headers have already been sent
+    if (!res.headersSent) {
+      res.status(500).send({
+        message: "Error creating order",
+        error: err.message,
+      });
+    } else {
+      console.log("Response already sent");
+    }
   }
 });
+
 
 // Handle successful payment webhook
 router.post("/webhook", async (req, res) => {
@@ -79,7 +132,7 @@ router.post("/webhook", async (req, res) => {
       process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err) {
-    return res.status(400).send(`Webhook Error: ${err.message}`);
+    return res.status(400).send(err);
   }
 
   if (event.type === "checkout.session.completed") {
@@ -91,8 +144,10 @@ router.post("/webhook", async (req, res) => {
         userID: session.client_reference_id,
       });
       if (order) {
+        console.log("trying to update payment status")
         order.paymentStatus = "completed";
         await order.save();
+        console.log("updated payment status")
       }
     } catch (err) {
       return res.status(500).send({ message: "Error updating order status" });
@@ -104,7 +159,14 @@ router.post("/webhook", async (req, res) => {
 
 // Tester routes for success and cancel
 router.get("/success", (req, res) => {
-  res.send("Payment successful! Thank you for your purchase.");
+  res.send(`
+    <script>
+      // Close the Stripe tab and return to the main app, send message to Cart.tsx for successful payment 
+      window.opener.postMessage({ success: true }, "*");
+      window.close();
+    </script>
+    <p>Payment successful! If this page does not close automatically, please close it manually.</p>
+  `);
 });
 
 router.get("/cancel", (req, res) => {
