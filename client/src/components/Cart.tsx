@@ -7,7 +7,8 @@ import { useAuth } from "../providers/AuthProvider";
 import { useEffect } from "react";
 
 function Cart() {
-    const { items, removeFromCart, updateQuantity, getCartTotal, clearCart } = useCart();
+    const { items, removeFromCart, updateQuantity, getCartTotal, clearCart } =
+        useCart();
     const navigate = useNavigate();
     const { user, dispatch } = useAuth();
 
@@ -33,17 +34,17 @@ function Cart() {
                 return response.data;
             }
         };
-        
+
         // Fetch user data first
         const userData = await fetchUserData();
-        
+
         // Then, send the data with the order request
         const response = await apiRequest(
             "order",
             "POST",
             "create-checkout-session",
             { order, deliveryMethod, userID: user?._id }
-        );        
+        );
 
         if (response.success) {
             window.open(response.data.url, "_blank");
@@ -53,20 +54,20 @@ function Cart() {
     };
 
     useEffect(() => {
-        const handlePaymentSuccess = (event : any) => {
-          if (event.data.success) {
-            // console.log("PAYMENT SUCCESS")
-            // Clear the cart after successful payment 
-            clearCart();
-          }
+        const handlePaymentSuccess = (event: any) => {
+            if (event.data.success) {
+                // console.log("PAYMENT SUCCESS")
+                // Clear the cart after successful payment
+                clearCart();
+            }
         };
-    
+
         window.addEventListener("message", handlePaymentSuccess);
-    
+
         return () => {
-          window.removeEventListener("message", handlePaymentSuccess);
+            window.removeEventListener("message", handlePaymentSuccess);
         };
-      }, []);
+    }, []);
 
     if (items.length === 0) {
         return (
