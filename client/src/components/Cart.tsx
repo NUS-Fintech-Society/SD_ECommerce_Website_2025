@@ -1,13 +1,14 @@
-import React from "react";
 import { useCart } from "../providers/CartProvider";
 import { Button } from "@chakra-ui/react";
 import { FaTrash, FaShoppingCart } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../api/apiRequest";
 import { useAuth } from "../providers/AuthProvider";
+import { useEffect } from "react";
 
 function Cart() {
-    const { items, removeFromCart, updateQuantity, getCartTotal } = useCart();
+    const { items, removeFromCart, updateQuantity, getCartTotal, clearCart } =
+        useCart();
     const navigate = useNavigate();
     const { user, dispatch } = useAuth();
 
@@ -27,6 +28,17 @@ function Cart() {
         );
         const deliveryMethod = hasShipping ? "standard" : "self-collection"; // Need to change this based on user selection
 
+        const fetchUserData = async () => {
+            const response = await apiRequest("users", "GET", `${user?._id}`);
+            if (response.success) {
+                return response.data;
+            }
+        };
+
+        // Fetch user data first
+        const userData = await fetchUserData();
+
+        // Then, send the data with the order request
         const response = await apiRequest(
             "order",
             "POST",
@@ -40,6 +52,22 @@ function Cart() {
             console.error("Error creating checkout session:", response.message);
         }
     };
+
+    useEffect(() => {
+        const handlePaymentSuccess = (event: any) => {
+            if (event.data.success) {
+                // console.log("PAYMENT SUCCESS")
+                // Clear the cart after successful payment
+                clearCart();
+            }
+        };
+
+        window.addEventListener("message", handlePaymentSuccess);
+
+        return () => {
+            window.removeEventListener("message", handlePaymentSuccess);
+        };
+    }, []);
 
     if (items.length === 0) {
         return (

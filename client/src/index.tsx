@@ -23,6 +23,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { useAuth } from "./providers/AuthProvider";
 import NotFound from "./components/NotFound";
 import LandingPage from "./components/LandingPage";
+import AdminOrdersTracking from "./components/AdminOrdersTracking";
 
 // Component that checks if user is authenticated
 const AuthRedirect = () => {
@@ -125,6 +126,14 @@ const router = createBrowserRouter([
                 element: (
                     <ProtectedRoute>
                         <Admin />
+                    </ProtectedRoute>
+                ),
+            }, 
+            {               
+                path: "/admin/ordersTracking",
+                element: (
+                    <ProtectedRoute>
+                        <AdminOrdersTracking />
                     </ProtectedRoute>
                 ),
             },

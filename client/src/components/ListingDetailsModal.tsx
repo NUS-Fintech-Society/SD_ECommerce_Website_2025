@@ -44,7 +44,7 @@ function ListingDetailsModal({
     >(null);
     const { user } = useAuth();
     const [quantity, setQuantity] = useState(1);
-    const { addToCart } = useCart();
+    const { addToCart, clearCart } = useCart();
 
     useEffect(() => {
         console.log(selectedSpec);
@@ -109,6 +109,7 @@ function ListingDetailsModal({
     };
 
     const handleBuyNow = async () => {
+        // clearCart() for debugging
         // handle checkout logic here
         console.log("Buying now:", {
             listing: listing._id,
