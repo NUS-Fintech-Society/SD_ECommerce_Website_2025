@@ -65,18 +65,18 @@ router.post("/create-checkout-session", async (req, res) => {
         const user = await User.findById(userID);
         console.log(user);
         //TODO: REPLACE these values with actual inputs from user
-        const newOrder = new Order({
-            userID: user._id,
-            username: user.username,
-            address: user.address || "Address", // TODO: Client side should request user to update address, city, country and zip code field before checking out
-            city: user.city || "City",
-            country: user.country || "Country",
-            zipCode: user.zipCode || "Zip Code",
-            items: orderItems,
-            createdDate: new Date(),
-            deliveryMethod: deliveryMethod,
-            totalAmount: totalPriceProduct + deliveryFee,
-        });
+        // const newOrder = new Order({
+        //     userID: user._id,
+        //     username: user.username,
+        //     address: user.address || "Address", // TODO: Client side should request user to update address, city, country and zip code field before checking out
+        //     city: user.city || "City",
+        //     country: user.country || "Country",
+        //     zipCode: user.zipCode || "Zip Code",
+        //     items: orderItems,
+        //     createdDate: new Date(),
+        //     deliveryMethod: deliveryMethod,
+        //     totalAmount: totalPriceProduct + deliveryFee,
+        // });
 
         const baseUrl =
             process.env.NODE_ENV == "production"
@@ -118,7 +118,7 @@ router.post("/create-checkout-session", async (req, res) => {
             cancel_url: `${baseUrl}/order/cancel`,
         });
 
-        await newOrder.save();
+        // await newOrder.save();
         // Send the response once, after the order is saved
         res.status(200).send({
             message: "Checkout session created",
@@ -141,7 +141,6 @@ router.post("/create-checkout-session", async (req, res) => {
 });
 
 // Handle successful payment webhook
-
 router.post(
     "/webhook",
     express.raw({ type: "application/json" }),
@@ -237,6 +236,25 @@ router.get("/success", (req, res) => {
 
 router.get("/cancel", (req, res) => {
     res.send("Payment canceled. Please try again.");
+});
+
+router.get("/user/:userId", async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const orders = await Order.find({ userID: userId })
+            .sort({ createdDate: -1 }); // Sort by newest first
+        
+        res.status(200).send({
+            success: true,
+            data: orders
+        });
+    } catch (err) {
+        res.status(500).send({
+            success: false,
+            message: "Error fetching user orders",
+            error: err.message
+        });
+    }
 });
 
 // Get all orders
