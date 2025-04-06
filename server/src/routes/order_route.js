@@ -31,6 +31,7 @@ router.post("/create-checkout-session", async (req, res) => {
                         images: product.images,
                         price: product.specifications[0].price,
                         quantity: item.quantity,
+                        item_completed: false,
                     };
                 } catch (err) {
                     console.error(`Error fetching product: ${err.message}`);
@@ -54,7 +55,7 @@ router.post("/create-checkout-session", async (req, res) => {
         }
 
         totalAmount = orderItems.reduce((acc, item) => {
-            acc += item.price * item.quantity;
+            acc += item.price * item.quantity + deliveryFee;
             return acc;
         }, 0);
 
@@ -188,6 +189,7 @@ router.post(
                             title: product.title,
                             colour: product.specifications[0].colour,
                             size: product.specifications[0].size,
+                            price: product.specifications[0].price,
                             images: product.images,
                             quantity: item.quantity,
                         };
@@ -300,16 +302,8 @@ router.put("/update/:id", async (req, res) => {
 
         // Update the order with the provided data
         const updatedOrder = await Order.findByIdAndUpdate(
-            order_id,
-            {
-                firstName: req.body.data.firstName,
-                lastName: req.body.data.lastName,
-                address: req.body.data.address,
-                city: req.body.data.city,
-                country: req.body.data.country,
-                zipCode: req.body.data.zipCode,
-                items: req.body.data.items,
-            },
+            req.params.id,
+            req.body.data,
             { new: true }
         );
 
