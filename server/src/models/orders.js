@@ -9,23 +9,6 @@ const orderSchema = new mongoose.Schema({
     city: { type: String, required: true },
     country: { type: String, required: true },
     zipCode: { type: String, required: true },
-    deliveryMethod: {
-        type: String,
-        enum: ["standard", "express", "self-collection"],
-        required: true,
-    },
-    deliveryStatus: {
-        type: String,
-        enum: [
-            "pending",
-            "processing",
-            "shipped",
-            "delivered",
-            "ready-for-collection",
-            "collected",
-        ],
-        default: "pending",
-    },
     trackingNumber: { type: String },
     estimatedDeliveryDate: { type: Date },
     items: [
@@ -35,6 +18,23 @@ const orderSchema = new mongoose.Schema({
             size: { type: String },
             images: [{ type: String }],
             quantity: { type: Number, required: true },
+            deliveryMethod: {
+                type: String,
+                enum: ["standard", "express", "self-collection"],
+                required: true,
+            },
+            deliveryStatus: {
+                type: String,
+                enum: [
+                    "pending",
+                    "processing",
+                    "shipped",
+                    "delivered",
+                    "ready-for-collection",
+                    "collected",
+                ],
+                default: "pending",
+            },
         },
     ],
     createdDate: { type: Date, required: true },

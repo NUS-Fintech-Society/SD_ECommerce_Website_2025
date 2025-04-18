@@ -11,20 +11,20 @@ export type Order = {
     city: string;
     country: string;
     zipCode: string;
-    deliveryMethod: "standard" | "express" | "self-collection";
-    deliveryStatus:
-        | "pending"
-        | "processing"
-        | "shipped"
-        | "delivered"
-        | "ready-for-collection"
-        | "collected";
     trackingNumber?: string; //optional as it may not exist for self collection
     estimatedDeliveryDate?: Date;
     items: {
         product: string; // Refers to Product ID (ObjectId in MongoDB)
         quantity: number;
         item_completed: false; // default state is false because not marked as completed by admin yet ; individual order item completion status
+        deliveryMethod: "standard" | "express" | "self-collection";
+        deliveryStatus:
+            | "pending"
+            | "processing"
+            | "shipped"
+            | "delivered"
+            | "ready-for-collection"
+            | "collected";
     }[];
     createdDate: Date;
     paymentStatus: "pending" | "completed" | "failed";
@@ -96,13 +96,6 @@ function AdminOrdersTracking() {
                                                 {order.items[0].quantity} |
                                                 Price: ${order.totalAmount}
                                             </p>
-                                            <p>
-                                                Delivery:{" "}
-                                                {order.deliveryMethod.replace(
-                                                    "-",
-                                                    " "
-                                                )}
-                                            </p>
                                         </div>
                                     </div>
                                     <span
@@ -164,13 +157,6 @@ function AdminOrdersTracking() {
                                         <p>
                                             Quantity: {order.items[0]?.quantity}{" "}
                                             | Price: ${order.totalAmount}
-                                        </p>
-                                        <p>
-                                            Delivery:{" "}
-                                            {order.deliveryMethod.replace(
-                                                "-",
-                                                " "
-                                            )}
                                         </p>
                                     </div>
                                 </div>
