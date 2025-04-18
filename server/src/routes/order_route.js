@@ -9,9 +9,9 @@ const { User } = require("../models/user");
 
 router.post("/create-checkout-session", async (req, res) => {
     try {
-        const { order, deliveryMethod, userID } = req.body.data;
-        console.log(order, deliveryMethod, userID);
+        const { order, userID } = req.body.data;
         let totalAmount;
+        let deliveryFee = 0;
         const orderItems = await Promise.all(
             order.items.map(async (item) => {
                 try {
@@ -24,6 +24,18 @@ router.post("/create-checkout-session", async (req, res) => {
                             `Product with title ${item.product.title} not found.`
                         );
                     }
+                    switch (item.deliveryMethod) {
+                        case "express":
+                            deliveryFee += 15.0;
+                            break;
+                        case "standard":
+                            deliveryFee += 5.0;
+                            break;
+                        case "self-collection":
+                            deliveryFee += 0.0;
+                            break;
+                    }
+
                     return {
                         title: product.title,
                         colour: product.specifications[0].colour,
@@ -31,6 +43,7 @@ router.post("/create-checkout-session", async (req, res) => {
                         images: product.images,
                         price: product.specifications[0].price,
                         quantity: item.quantity,
+                        deliveryMethod: item.deliveryMethod
                     };
                 } catch (err) {
                     console.error(`Error fetching product: ${err.message}`);
@@ -39,19 +52,7 @@ router.post("/create-checkout-session", async (req, res) => {
             })
         );
 
-        // Calculate delivery fee
-        let deliveryFee = 0;
-        switch (deliveryMethod) {
-            case "express":
-                deliveryFee = 15.0;
-                break;
-            case "standard":
-                deliveryFee = 5.0;
-                break;
-            case "self-collection":
-                deliveryFee = 0.0;
-                break;
-        }
+
 
         totalAmount = orderItems.reduce((acc, item) => {
             acc += item.price * item.quantity;
@@ -74,7 +75,6 @@ router.post("/create-checkout-session", async (req, res) => {
             zipCode: user.zipCode || "Zip Code",
             items: orderItems,
             createdDate: new Date(),
-            deliveryMethod: deliveryMethod,
             totalAmount: totalPriceProduct + deliveryFee,
         });
 
@@ -86,19 +86,18 @@ router.post("/create-checkout-session", async (req, res) => {
             mode: "payment",
             client_reference_id: JSON.stringify({
                 userID,
-                order,
-                deliveryMethod,
+                orderID: newOrder._id.toString(),
                 deliveryFee,
             }),
             payment_method_types: ["card", "paynow", "grabpay"],
             line_items: [
-                ...order.items.map((item) => ({
+                ...orderItems.map((item) => ({
                     price_data: {
                         currency: "sgd",
                         product_data: {
-                            name: item.product.title,
+                            name: item.title + (item.deliveryMethod == "standard" ? " (Standard Delivery)" : " (Self Collection)"),
                         },
-                        unit_amount: item.product.price * 100,
+                        unit_amount: item.price * 100,
                     },
                     quantity: item.quantity,
                 })),
@@ -106,8 +105,7 @@ router.post("/create-checkout-session", async (req, res) => {
                     price_data: {
                         currency: "sgd",
                         product_data: {
-                            name: `${deliveryMethod.charAt(0).toUpperCase() +
-                                deliveryMethod.slice(1)} Delivery`,
+                            name: "Delivery Fee",
                         },
                         unit_amount: deliveryFee * 100,
                     },
@@ -162,14 +160,19 @@ router.post(
 
         if (event.type === "checkout.session.completed") {
             const session = event.data.object;
-            const { userID, order, deliveryMethod, deliveryFee } = JSON.parse(
+            const { userID, orderId, deliveryFee } = JSON.parse(
                 session.client_reference_id
             );
-            console.log(userID, order, deliveryMethod, deliveryFee);
+            console.log(userID, orderId, deliveryFee);
             try {
                 const user = await User.findById(userID);
                 if (!user) {
                     throw new Error("User not found");
+                }
+
+                const order = await Order.findById(orderId);
+                if (!order) {
+                    throw new Error("Order not found");
                 }
 
                 const orderItems = await Promise.all(
@@ -207,7 +210,6 @@ router.post(
                     zipCode: user.zipCode || "Zip Code",
                     items: orderItems,
                     createdDate: new Date(),
-                    deliveryMethod: deliveryMethod,
                     totalAmount: totalPriceProduct + deliveryFee,
                     paymentStatus: "completed",
                 });
