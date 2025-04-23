@@ -30,11 +30,13 @@ const orderSchema = new mongoose.Schema({
     estimatedDeliveryDate: { type: Date },
     items: [
         {
-            title: { type: String },
-            colour: { type: String },
-            size: { type: String },
+            title: { type: String, required: true },
+            colour: { type: String, required: true },
+            size: { type: String, required: true },
             images: [{ type: String }],
             quantity: { type: Number, required: true },
+            price: { type: Number, required: true },
+            item_completed: { type: Boolean, default: false },
         },
     ],
     createdDate: { type: Date, required: true },
