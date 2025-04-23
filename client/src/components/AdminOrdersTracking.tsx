@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { apiRequest } from "../api/apiRequest";
 import OrderCard from "./OrderCard"; // Import the reusable OrderCard component
-import { ObjectWithId } from "auth0";
+// import { ObjectWithId } from "auth0";
 
 export type Order = {
-    _id: string,
+    _id: string;
     userID: string;
     username: string;
     address: string;
@@ -27,7 +27,7 @@ export type Order = {
         size: string;
         images: string[];
         quantity: number;
-        price : number
+        price: number;
     }>;
     createdDate: Date;
     paymentStatus: "pending" | "completed" | "failed";
@@ -69,7 +69,9 @@ function AdminOrdersTracking() {
                         (order) =>
                             !order.items.every((item) => item.item_completed)
                     )
-                    .map((order, index) => <OrderCard key={index} order={order} />)
+                    .map((order, index) => (
+                        <OrderCard key={index} order={order} />
+                    ))
             )}
 
             {/* Completed Orders Section */}
@@ -83,7 +85,9 @@ function AdminOrdersTracking() {
                     .filter((order) =>
                         order.items.every((item) => item.item_completed)
                     )
-                    .map((order, index) => <OrderCard key={index} order={order} />)
+                    .map((order, index) => (
+                        <OrderCard key={index} order={order} />
+                    ))
             )}
         </div>
     );
