@@ -108,12 +108,13 @@ router.post("/create-checkout-session", async (req, res) => {
 
         const session = await stripe.checkout.sessions.create({
             mode: "payment",
-            client_reference_id: JSON.stringify({
-                orderID: newOrder._id, // Save order ID for webhook to update payment status
-                userID,
-                deliveryMethod,
-                deliveryFee,
-            }),
+            // client_reference_id: JSON.stringify({
+            //     orderID: newOrder._id, // Save order ID for webhook to update payment status
+            //     userID,
+            //     deliveryMethod,
+            //     deliveryFee,
+            // }),
+            client_reference_id: newOrder._id.toString(),
             payment_method_types: ["card", "paynow", "grabpay"],
             line_items: [
                 ...order.items.map((item) => ({
