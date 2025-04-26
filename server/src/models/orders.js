@@ -23,6 +23,7 @@ const orderSchema = new mongoose.Schema({
             "delivered",
             "ready-for-collection",
             "collected",
+            "completed",
         ],
         default: "pending",
     },

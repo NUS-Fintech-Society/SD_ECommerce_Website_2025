@@ -108,12 +108,13 @@ router.post("/create-checkout-session", async (req, res) => {
 
         const session = await stripe.checkout.sessions.create({
             mode: "payment",
-            client_reference_id: JSON.stringify({
-                orderID: newOrder._id, // Save order ID for webhook to update payment status
-                userID,
-                deliveryMethod,
-                deliveryFee,
-            }),
+            // client_reference_id: JSON.stringify({
+            //     orderID: newOrder._id, // Save order ID for webhook to update payment status
+            //     userID,
+            //     deliveryMethod,
+            //     deliveryFee,
+            // }),
+            client_reference_id: newOrder._id.toString(),
             payment_method_types: ["card", "paynow", "grabpay"],
             line_items: [
                 ...order.items.map((item) => ({
@@ -254,6 +255,26 @@ router.get("/success", (req, res) => {
 
 router.get("/cancel", (req, res) => {
     res.send("Payment canceled. Please try again.");
+});
+
+router.get("/user/:userId", async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const orders = await Order.find({ userID: userId }).sort({
+            createdDate: -1,
+        }); // Sort by newest first
+
+        res.status(200).send({
+            success: true,
+            data: orders,
+        });
+    } catch (err) {
+        res.status(500).send({
+            success: false,
+            message: "Error fetching user orders",
+            error: err.message,
+        });
+    }
 });
 
 // Get all orders

@@ -18,7 +18,8 @@ export type Order = {
         | "shipped"
         | "delivered"
         | "ready-for-collection"
-        | "collected";
+        | "collected"
+        | "completed";
     trackingNumber?: string; // Optional as it may not exist for self collection
     items: Array<{
         item_completed: boolean;
