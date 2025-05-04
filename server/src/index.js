@@ -40,7 +40,7 @@ const frontendURL = process.env.FRONTEND_URL || "http://localhost:3000";
 // };
 
 const corsOptions = {
-    origin: "*",
+    origin: ["https://sd-ecommerce-2025-client.vercel.app", frontendURL],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
         "Content-Type",
@@ -49,10 +49,13 @@ const corsOptions = {
         "Access-Control-Request-Headers",
     ],
     credentials: true,
-    enablePreflight: true,
+    optionsSuccessStatus: 200,
 };
 
+// Apply CORS middleware before any routes
 app.use(cors(corsOptions));
+
+// Pre-flight OPTIONS requests
 app.options("*", cors(corsOptions));
 
 // app.use(allowCors); // ✅ Apply CORS middleware globally
