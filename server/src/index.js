@@ -46,6 +46,7 @@ const allowedOrigins = [
 
 const corsOptions = {
     origin: function(origin, callback) {
+        console.log("Origin:", origin);
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
@@ -57,8 +58,10 @@ const corsOptions = {
     allowedHeaders: [
         "Content-Type",
         "Authorization",
+        "X-Requested-With",
         "Access-Control-Allow-Methods",
         "Access-Control-Request-Headers",
+        "Access-Control-Allow-Headers",
     ],
     optionsSuccessStatus: 200,
 };
@@ -97,7 +100,10 @@ app.use("/listings", listingsRoute);
 app.use("/drafts", draftsRoute);
 app.use("/adminRequest", adminRequest);
 app.use("/admin", admin);
-
+// Add a test route to verify CORS is working
+app.get("/api/test-cors", (req, res) => {
+    res.json({ message: "CORS is configured correctly!" });
+});
 mongoose
     .connect(`${process.env.MONGODB_URI}`) // Changing to MongoAtlas //Use localhost for now
     .then(() => console.log("Connected to MongoDB..."))
