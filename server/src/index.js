@@ -20,33 +20,54 @@ const app = express();
 const isProduction = process.env.NODE_ENV === "production";
 const frontendURL = process.env.FRONTEND_URL || "http://localhost:3000";
 // ✅ Apply allowCors middleware before routes
-const allowCors = (req, res, next) => {
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader(
-        "Access-Control-Allow-Methods",
-        "GET,OPTIONS,PATCH,DELETE,POST,PUT"
-    );
-    res.setHeader(
-        "Access-Control-Allow-Headers",
-        "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
-    );
+// const allowCors = (req, res, next) => {
+//     res.setHeader("Access-Control-Allow-Credentials", "true");
+//     res.setHeader("Access-Control-Allow-Origin", "*");
+//     res.setHeader(
+//         "Access-Control-Allow-Methods",
+//         "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+//     );
+//     res.setHeader(
+//         "Access-Control-Allow-Headers",
+//         "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
+//     );
 
-    if (req.method === "OPTIONS") {
-        return res.status(200).end();
-    }
+//     if (req.method === "OPTIONS") {
+//         return res.status(200).end();
+//     }
 
-    next();
-};
+//     next();
+// };
 
-app.use(allowCors); // ✅ Apply CORS middleware globally
 const corsOptions = {
     origin: "*",
-    credentials: true, //access-control-allow-credentials:true
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    optionSuccessStatus: 200,
+    allowedHeaders: [
+        "Content-Type",
+        "Authorization",
+        "Access-Control-Allow-Methods",
+        "Access-Control-Request-Headers",
+    ],
+    credentials: true,
+    enablePreflight: true,
 };
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+
+// app.use(allowCors); // ✅ Apply CORS middleware globally
+// const corsOptions = {
+//     origin: "*",
+//     credentials: true, //access-control-allow-credentials:true
+//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+//     allowedHeaders: [
+//         "Content-Type",
+//         "Authorization",
+//         "Access-Control-Allow-Methods",
+//         "Access-Control-Request-Headers",
+//     ],
+//     optionSuccessStatus: 200,
+// };
 
 app.use(express.json());
 // app.use(cors(corsOptions));
