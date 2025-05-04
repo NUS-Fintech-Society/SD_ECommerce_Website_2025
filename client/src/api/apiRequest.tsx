@@ -33,16 +33,28 @@ export const apiRequest = async (
         // Handle different HTTP methods
         switch (method) {
             case "GET":
-                response = await axios.get(url, { params: data });
+                response = await axios.get(url, {
+                    params: data,
+                    withCredentials: true,
+                });
                 break;
             case "POST":
-                response = await axios.post(url, { data });
+                response = await axios.post(url, {
+                    data,
+                    withCredentials: true,
+                });
                 break;
             case "PUT":
-                response = await axios.put(url, { data });
+                response = await axios.put(url, {
+                    data,
+                    withCredentials: true,
+                });
                 break;
             case "DELETE":
-                response = await axios.delete(url, { data });
+                response = await axios.delete(url, {
+                    data,
+                    withCredentials: true,
+                });
                 break;
             default:
                 throw new Error("Invalid HTTP method");

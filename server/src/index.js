@@ -39,11 +39,20 @@ const frontendURL = process.env.FRONTEND_URL || "http://localhost:3000";
 //     next();
 // };
 
+const allowedOrigins = [
+    "https://sd-e-commerce-website-2025-client.vercel.app",
+    frontendURL,
+];
+
 const corsOptions = {
-    origin: [
-        "https://sd-e-commerce-website-2025-client.vercel.app",
-        frontendURL,
-    ],
+    origin: function(origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
         "Content-Type",
@@ -51,7 +60,6 @@ const corsOptions = {
         "Access-Control-Allow-Methods",
         "Access-Control-Request-Headers",
     ],
-    credentials: true,
     optionsSuccessStatus: 200,
 };
 
