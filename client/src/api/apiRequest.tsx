@@ -19,61 +19,6 @@ interface ApiResponse<T = any> {
  */
 
 // Define a general API Request function
-// export const apiRequest = async (
-//   collection_name: string,
-//   method: "GET" | "POST" | "PUT" | "DELETE",
-//   endpoint: string,
-//   data: any = null
-// ): Promise<ApiResponse> => {
-//   try {
-//     const url = `${process.env.REACT_APP_API_URL}/${collection_name}/${endpoint}`;
-//     console.log(url);
-//     let response: AxiosResponse;
-
-//     // Handle different HTTP methods
-//     switch (method) {
-//       case "GET":
-//         response = await axios.get(url, { params: data });
-//         break;
-//       case "POST":
-//         response = await axios.post(url, { data });
-//         break;
-//       case "PUT":
-//         response = await axios.put(url, { data });
-//         break;
-//       case "DELETE":
-//         response = await axios.delete(url, { data });
-//         break;
-//       default:
-//         throw new Error("Invalid HTTP method");
-//     }
-//     // await axios.post(url, data).then(e => console.log(e))
-
-//     return {
-//       success: true,
-//       data: response.data,
-//     };
-//   } catch (error: any) {
-//     console.error("API error:", error);
-//     return {
-//       success: false,
-//       message: error.response?.data?.message || "An error occurred",
-//     };
-//   }
-// };
-
-// Create an axios instance with default configuration
-const api = axios.create({
-    baseURL:
-        process.env.REACT_APP_API_URL ||
-        "https://sd-e-commerce-website-2025-server.vercel.app",
-    headers: {
-        "Content-Type": "application/json",
-    },
-    withCredentials: true, // Important for CORS with credentials
-});
-
-// Define a general API Request function
 export const apiRequest = async (
     collection_name: string,
     method: "GET" | "POST" | "PUT" | "DELETE",
@@ -81,30 +26,28 @@ export const apiRequest = async (
     data: any = null
 ): Promise<ApiResponse> => {
     try {
-        const url = `/${collection_name}/${endpoint}`;
-        console.log(`Making ${method} request to: ${url}`);
+        const url = `${process.env.REACT_APP_API_URL}/${collection_name}/${endpoint}`;
+        console.log(url);
         let response: AxiosResponse;
 
         // Handle different HTTP methods
         switch (method) {
             case "GET":
-                response = await api.get(url, { params: data });
+                response = await axios.get(url, { params: data });
                 break;
             case "POST":
-                // Don't wrap data in an extra object
-                response = await api.post(url, data);
+                response = await axios.post(url, { data });
                 break;
             case "PUT":
-                // Don't wrap data in an extra object
-                response = await api.put(url, data);
+                response = await axios.put(url, { data });
                 break;
             case "DELETE":
-                // For DELETE requests, send data as config.data
-                response = await api.delete(url, { data });
+                response = await axios.delete(url, { data });
                 break;
             default:
                 throw new Error("Invalid HTTP method");
         }
+        // await axios.post(url, data).then(e => console.log(e))
 
         return {
             success: true,
