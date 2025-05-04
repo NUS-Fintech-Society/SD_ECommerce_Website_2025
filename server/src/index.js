@@ -40,7 +40,10 @@ const frontendURL = process.env.FRONTEND_URL || "http://localhost:3000";
 // };
 
 const corsOptions = {
-    origin: ["https://sd-ecommerce-2025-client.vercel.app", frontendURL],
+    origin: [
+        "https://sd-e-commerce-website-2025-client.vercel.app/",
+        frontendURL,
+    ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
         "Content-Type",
