@@ -104,17 +104,33 @@ app.use("/admin", admin);
 app.get("/api/test-cors", (req, res) => {
     res.json({ message: "CORS is configured correctly!" });
 });
-mongoose
-    .connect(`${process.env.MONGODB_URI}`) // Changing to MongoAtlas //Use localhost for now
-    .then(() => console.log("Connected to MongoDB..."))
-    .catch((err) => console.error("Could not connect to MongoDB..."));
 
-if (!isProduction) {
-    const port = process.env.PORT || 5000;
-    app.listen(port, () => {
-        console.log(`🚀 Server running locally on port ${port}`);
-    });
-}
+const connectDB = require("./db");
+
+(async () => {
+    await connectDB();
+    if (!isProduction) {
+        const port = process.env.PORT || 5000;
+        app.listen(port, () => {
+            console.log(`🚀 Server running locally on port ${port}`);
+        });
+    }
+})();
+
+// mongoose
+//     .connect(`${process.env.MONGODB_URI}`, {
+//         useNewUrlParser: true,
+//         useUnifiedTopology: true,
+//     }) // Changing to MongoAtlas //Use localhost for now
+//     .then(() => console.log("Connected to MongoDB..."))
+//     .catch((err) => console.error("Could not connect to MongoDB..."));
+
+// if (!isProduction) {
+//     const port = process.env.PORT || 5000;
+//     app.listen(port, () => {
+//         console.log(`🚀 Server running locally on port ${port}`);
+//     });
+// }
 
 // Export app for Vercel deployment
 module.exports = app;
