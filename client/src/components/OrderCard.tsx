@@ -68,10 +68,16 @@ const OrderCard: React.FC<OrderCardProps> = ({
                 return item;
             });
 
+            const allCompleted = updatedItems.every(
+                (item) => item.item_completed
+            );
             // Immediately update local state for responsive UI
             const updatedOrder = {
                 ...order,
                 items: updatedItems,
+                deliveryStatus: allCompleted
+                    ? "completed"
+                    : order.deliveryStatus,
             };
             setOrder(updatedOrder);
 
@@ -87,6 +93,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
                 `update/${order?._id}`,
                 {
                     items: updatedItems,
+                    ...(allCompleted && { deliveryStatus: "completed" }),
                 }
             );
 
