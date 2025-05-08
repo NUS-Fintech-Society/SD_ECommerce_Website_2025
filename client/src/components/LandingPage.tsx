@@ -1,6 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "../Landing.css";
+import eleoslogo from "../assets/images/ELEOS.png";
+import landingPage from "../assets/images/landingPage.png";
 
 const Landing = () => {
     const navigate = useNavigate();
@@ -11,7 +13,12 @@ const Landing = () => {
             <nav className="navbar">
                 {/* Logo on the left */}
                 <div className="navbar-logo" onClick={() => navigate("/")}>
-                    Landing Page Logo
+                    <img
+                        src={eleoslogo}
+                        alt="Landing Page Logo"
+                        className="h-20 cursor-pointer"
+                        // style={{ height: "40px", cursor: "pointer" }}
+                    />
                 </div>
                 {/* Login and Signup buttons on the right */}
                 <div className="navbar-buttons">
@@ -31,13 +38,27 @@ const Landing = () => {
             </nav>
 
             {/* Main Content Section */}
-            <div className="flex-container">
-                {/* Logo Section */}
-                <div className="logo-section">
-                    <div className="logo-box">
-                        <h1 className="logo-title"> NUS Fintech Society</h1>
-                        <h2 className="logo-subtitle">Landing Page Content</h2>
-                    </div>
+            <div
+                className="flex flex-col md:flex-row items-center justify-between px-8 py-16 bg-white h-full w-full"
+                style={{ backgroundColor: "#fffbf3" }}
+            >
+                {/* Text Content */}
+                <div className="max-w-xl text-left">
+                    <h1 className="text-5xl font-bold text-primary mb-4">
+                        Shop with ELEOS
+                    </h1>
+                    <h2 className="text-2xl font-medium text-secondary">
+                        NUS Fintech Society
+                    </h2>
+                </div>
+
+                {/* Image Section */}
+                <div className="mt-10 md:mt-0 md:ml-10 max-w-xl w-full">
+                    <img
+                        src={landingPage}
+                        alt="ELEOS Landing"
+                        className="w-full h-auto object-contain"
+                    />
                 </div>
             </div>
         </div>

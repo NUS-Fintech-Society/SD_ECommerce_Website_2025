@@ -5,6 +5,7 @@ import { useAuth } from "../providers/AuthProvider";
 import { FaShoppingCart } from "react-icons/fa";
 import { useCart } from "../providers/CartProvider";
 import { useToast } from "@chakra-ui/react";
+import ELEOS_logo from "../assets/images/ELEOS.png";
 
 export default function Navbar() {
     const { user, dispatch } = useAuth();
@@ -38,7 +39,13 @@ export default function Navbar() {
                     // } md:opacity-100`}
                     className="flex-1 flex justify-center items-center space-x-8 pl-24"
                 >
-                    <NavLink to="/home">ELEOS Logo</NavLink>
+                    <NavLink to="/home">
+                        <img
+                            src={ELEOS_logo}
+                            alt="Landing Page Logo"
+                            className="h-10 cursor-pointer"
+                        ></img>
+                    </NavLink>
                     <NavLink
                         className="md:ml-8 text-lg md:my-0 my-7"
                         to="/home"

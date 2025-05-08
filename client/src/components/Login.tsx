@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../api/apiRequest";
 import "../Signup_Login.css";
 import { useAuth } from "../providers/AuthProvider";
+import ELEOS_clean from "../assets/images/ELEOS_clean.png";
 
 const Login: React.FC = () => {
     const navigate = useNavigate();
@@ -52,7 +53,13 @@ const Login: React.FC = () => {
         <div className="main-container">
             {/* Left Section: Logo */}
             <div className="logo-section">
-                <div className="logo-box">"ELEOS"</div>
+                <div className="logo-box">
+                    <img
+                        src={ELEOS_clean}
+                        alt="ELEOS Logo"
+                        className="h-16 w-auto h-full" // adjust size as needed
+                    />
+                </div>
             </div>
 
             {/* Right Section: Form */}

@@ -46,7 +46,7 @@ const allowedOrigins = [
 
 const corsOptions = {
     origin: function(origin, callback) {
-        console.log("Origin:", origin);
+        // console.log("Origin:", origin);
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
@@ -86,10 +86,11 @@ app.options("*", cors(corsOptions));
 //     optionSuccessStatus: 200,
 // };
 
-app.use(express.json());
+// app.use(express.json());
 // app.use(cors(corsOptions));
-app.use(isAuth);
+
 app.use(bodyParser);
+app.use(isAuth);
 
 app.use("/product", product);
 app.use("/users", user);

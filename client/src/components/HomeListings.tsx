@@ -55,40 +55,96 @@ function HomeListings() {
         onOpen();
     };
 
+    // Helper function to get the price from specifications array
+    const getPrice = (listing: Listing) => {
+        if (listing.specifications && listing.specifications.length > 0) {
+            return listing.specifications[0].price;
+        }
+        return "N/A";
+    };
+
     return (
         <>
-            <div className="container mx-auto px-4">
-                <h1 className="text-3xl font-bold mb-6">Listings</h1>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {listings.map((listing) => (
-                        <div
-                            key={listing._id}
-                            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
-                            onClick={() => handleViewDetails(listing)}
-                        >
-                            {listing.images.length > 0 && (
-                                <img
-                                    src={listing.images[0]}
-                                    alt={listing.title}
-                                    className="w-full h-48 object-cover"
-                                />
-                            )}
-                            <div className="p-4">
-                                <h2 className="text-xl font-semibold mb-2">
-                                    {listing.title}
-                                </h2>
-                                <p className="text-gray-600 line-clamp-2">
-                                    {listing.description}
-                                </p>
+            {/* Hero Banner */}
+            <div className="w-full relative">
+                <div className="bg-gradient-to-r from-blue-700 to-indigo-600 text-white overflow-hidden max-w-7xl mx-auto px-6 py-10 relative rounded-md">
+                    {/* Background decoration */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full transform -translate-y-1/3 translate-x-1/3"></div>
+                    <div className="absolute bottom-0 left-20 w-32 h-32 bg-white opacity-10 rounded-full transform translate-y-1/2"></div>
 
-                                <div className="flex flex-col gap-2 mt-5">
-                                    <button className="w-full border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-50">
-                                        Buy Now
-                                    </button>
+                    {/* Constrained content */}
+                    <div className="relative z-10 max-w-lg">
+                        <span className="inline-block text-blue-200 font-medium mb-2">
+                            Limited Time Offer
+                        </span>
+                        <h2 className="text-4xl font-bold mb-4 tracking-tight">
+                            Summer Sale
+                        </h2>
+                        <p className="text-lg text-blue-100 mb-2">
+                            Up to 50% off on selected items
+                        </p>
+                        <p className="text-sm text-blue-200">
+                            Ends August 31st
+                        </p>
+                    </div>
+
+                    {/* Optional subtle animated highlight */}
+                    <div className="absolute right-10 h-full top-0 flex items-center">
+                        <div className="h-20 w-20 rotate-45 bg-white opacity-20"></div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Main Container */}
+            <div className="max-w-7xl mx-auto px-6 pb-12 bg-white relative">
+                {/* Subtle background pattern overlay */}
+                <div
+                    className="absolute inset-0"
+                    style={{ backgroundColor: "#edf7f6" }}
+                ></div>
+
+                <div className="h-1 w-full bg-white opacity-60"></div>
+
+                {/* Content container */}
+                <div className="relative z-10">
+                    {/* New Arrivals Section */}
+                    <div className="mb-12 mt-4">
+                        <h1 className="text-4xl font-semibold text-center mb-6 text-gray-800">
+                            New Arrivals
+                        </h1>
+                        <div className="h-1 w-32 mx-auto bg-gradient-to-r from-transparent via-indigo-300 to-transparent mb-10"></div>
+                    </div>
+
+                    <div
+                        className="grid grid-cols-1 md:grid-cols-5 gap-8 overflow-y-auto"
+                        style={{ maxHeight: "40rem" }} // Adjust height as needed for 2 rows
+                    >
+                        {listings.map((listing: Listing) => (
+                            <div
+                                key={listing._id}
+                                className="flex flex-col items-center cursor-pointer group"
+                                onClick={() => handleViewDetails(listing)}
+                            >
+                                <div className="w-full overflow-hidden mb-3">
+                                    {listing.images?.length ? (
+                                        <img
+                                            src={listing.images[0]}
+                                            alt={listing.title}
+                                            className="w-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105 bg-gray-100 rounded"
+                                        />
+                                    ) : (
+                                        <div className="bg-gray-100 w-full aspect-square"></div>
+                                    )}
                                 </div>
+                                <p className="font-medium text-gray-800">
+                                    {listing.title}
+                                </p>
+                                <p className="text-gray-600">
+                                    ${parseFloat(getPrice(listing)).toFixed(2)}
+                                </p>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             </div>
 

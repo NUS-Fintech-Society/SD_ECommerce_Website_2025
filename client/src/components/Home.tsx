@@ -330,7 +330,7 @@ const Home = () => {
     return (
         <>
             <h1 className="p-2 text-2xl font-bold text-center my-4">
-                Welcome to ELEOS Home Page
+                {/* Welcome to ELEOS Home Page */}
             </h1>
             <HomeListings />
         </>
