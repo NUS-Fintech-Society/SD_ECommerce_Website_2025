@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "../providers/AuthProvider";
 import { apiRequest } from "../api/apiRequest";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import ProfileModal from "./ProfileModal";
 import {
     AlertDialog,
@@ -155,6 +155,11 @@ export default function ManageAccounts() {
     const handleCloseModal = () => {
         setModalState((prev) => ({ ...prev, isOpen: false }));
     };
+
+    if (!user?.isSuperAdmin) {
+        // Redirect to login if not authenticated
+        return <Navigate to="/" replace />;
+    }
 
     return (
         <div className="bg-blue-800">

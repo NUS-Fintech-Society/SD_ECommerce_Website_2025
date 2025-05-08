@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { apiRequest } from "../api/apiRequest";
 import OrderCard from "./OrderCard"; // Import the reusable OrderCard component
+import { useAuth } from "../providers/AuthProvider";
+import { Navigate } from "react-router-dom";
 // import { ObjectWithId } from "auth0";
 
 export type Order = {
@@ -55,7 +57,11 @@ function AdminOrdersTracking() {
     useEffect(() => {
         fetchOrders();
     }, []);
-
+    var { user } = useAuth(); // Get the user from AuthProvider
+    if (!user?.isAdmin) {
+        // Redirect to login if not authenticated
+        return <Navigate to="/" replace />;
+    }
     return (
         <div className="p-4">
             {/* Current Orders Section */}

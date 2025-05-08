@@ -53,12 +53,14 @@ export default function Navbar() {
                         Home
                     </NavLink>
 
-                    <NavLink
-                        className="md:ml-8 text-lg md:my-0 my-7"
-                        to="/admin"
-                    >
-                        Admin
-                    </NavLink>
+                    {user?.isAdmin && (
+                        <NavLink
+                            className="md:ml-8 text-lg md:my-0 my-7"
+                            to="/admin"
+                        >
+                            Admin
+                        </NavLink>
+                    )}
                     <NavLink
                         className="md:ml-8 text-lg md:my-0 my-7 flex flex-row items-center gap-2"
                         to="/profile"
