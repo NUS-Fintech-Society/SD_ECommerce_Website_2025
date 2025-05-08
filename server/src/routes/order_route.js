@@ -127,7 +127,7 @@ router.post("/create-checkout-session", async (req, res) => {
                                     ? " (Standard Delivery)"
                                     : " (Self Collection)"),
                         },
-                        unit_amount: Math.round(item.product.price * 100), // Ensure integer
+                        unit_amount: Math.round(item.price * 100), // Ensure integer
                     },
                     quantity: item.quantity,
                 })),

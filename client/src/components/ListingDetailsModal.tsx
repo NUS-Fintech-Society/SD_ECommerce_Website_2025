@@ -57,8 +57,8 @@ function ListingDetailsModal({
     const cancelRef = useRef<HTMLButtonElement>(null!);
 
     useEffect(() => {
-        console.log(selectedSpec);
-        console.log(selectedDelivery);
+        // console.log(selectedSpec);
+        // console.log(selectedDelivery);
     }, [selectedSpec, selectedDelivery]);
 
     useEffect(() => {
@@ -162,12 +162,12 @@ function ListingDetailsModal({
     // };
 
     const handleBuyNow = async () => {
-        console.log("Buying now:", {
-            listing: listing._id,
-            specification: selectedSpec,
-            delivery: selectedDelivery,
-            quantity: quantity,
-        });
+        // console.log("Buying now:", {
+        //     listing: listing._id,
+        //     specification: selectedSpec,
+        //     delivery: selectedDelivery,
+        //     quantity: quantity,
+        // });
 
         if (!selectedSpec || !selectedDelivery) {
             alert("Please select both specification and delivery method");
@@ -185,7 +185,6 @@ function ListingDetailsModal({
                         price: parseFloat(selectedSpec.price),
                     },
                     quantity: quantity,
-                    deliveryMethod: deliveryMethod,
                 },
             ],
         };
@@ -204,8 +203,8 @@ function ListingDetailsModal({
             };
 
             const userData = await fetchUserData();
-            if (!userData.address) {
-                console.log("redirect");
+            if (!userData?.address) {
+                // console.log("redirect");
                 setShowRedirectModal(true);
                 return;
             }
@@ -215,7 +214,11 @@ function ListingDetailsModal({
             "order",
             "POST",
             "create-checkout-session",
-            { order, userID: user?._id }
+            {
+                order,
+                deliveryMethod,
+                userID: user?._id,
+            }
         );
 
         if (response.success) {

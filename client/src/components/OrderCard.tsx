@@ -149,7 +149,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
                             {order.items[0]?.price}
                         </p>
                         <p>
-                            Delivery: {order.deliveryMethod.replace("-", " ")}
+                            Delivery: {order.deliveryMethod?.replace("-", " ")}
                         </p>
                     </div>
                 </div>
@@ -242,7 +242,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
                                             </Text>
                                             <Text>
                                                 Delivery:{" "}
-                                                {order.deliveryMethod.replace(
+                                                {order.deliveryMethod?.replace(
                                                     "-",
                                                     " "
                                                 )}
@@ -316,7 +316,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
                                 </Text>
                                 <Text>
                                     Delivery:{" "}
-                                    {order.deliveryMethod.replace("-", " ")}
+                                    {order.deliveryMethod?.replace("-", " ")}
                                 </Text>
                             </ModalBody>
                             <ModalFooter>
@@ -390,8 +390,9 @@ const OrderCard: React.FC<OrderCardProps> = ({
                             <React.Fragment>
                                 <Text fontWeight="bold">Shipping Address:</Text>
                                 <Text>
-                                    {order.address}, {order.city},{" "}
-                                    {order.country}, {order.zipCode}
+                                    {order.address}
+                                    {/* {order.city},{" "}
+                                    {order.country}, {order.zipCode} */}
                                 </Text>
                             </React.Fragment>
                         )}

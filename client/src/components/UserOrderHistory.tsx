@@ -43,7 +43,7 @@ function UserOrderHistory() {
                 );
                 if (response.success) {
                     setOrders(response.data.data);
-                    console.log("Orders data:", response.data.data);
+                    // console.log("Orders data:", response.data.data);
                 }
             }
         };
@@ -126,7 +126,7 @@ function UserOrderHistory() {
                             <Box>
                                 <Text color="gray.600">Delivery Address:</Text>
                                 <Text>{order.address}</Text>
-                                <Text>{`${order.city}, ${order.country} ${order.zipCode}`}</Text>
+                                {/* <Text>{`${order.city}, ${order.country} ${order.zipCode}`}</Text> */}
                             </Box>
 
                             <Divider />

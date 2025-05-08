@@ -27,7 +27,7 @@ export const apiRequest = async (
 ): Promise<ApiResponse> => {
     try {
         const url = `${process.env.REACT_APP_API_URL}/${collection_name}/${endpoint}`;
-        console.log(url);
+        // console.log(url);
         let response: AxiosResponse;
 
         // Handle different HTTP methods

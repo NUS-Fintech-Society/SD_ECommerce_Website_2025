@@ -4,7 +4,7 @@ import HomeListings from "./HomeListings";
 
 const Home = () => {
     useEffect(() => {
-        console.log("Testing API Endpoint");
+        // console.log("Testing API Endpoint");
         // Test the GET all users endpoint
         const fetchAllUsers = async () => {
             try {
@@ -315,7 +315,7 @@ const Home = () => {
         };
 
         // Call the test function
-        console.log("Testing API Endpoints:");
+        // console.log("Testing API Endpoints:");
         // createTestProduct(); // Call this first
         // fetchAllProducts();
         // testOrderAndDelivery("67d5a64f4cd1dcb0d66abf1d");

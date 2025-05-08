@@ -33,38 +33,34 @@ function Cart() {
                     price: parseFloat(item.specification.price),
                 },
                 quantity: item.quantity,
-                deliveryMethod:
-                    item.deliveryMethod == "shipping"
-                        ? "standard"
-                        : "self-collection",
             })),
         };
+
+        const deliveryMethod = hasShipping ? "standard" : "self-collection";
 
         const fetchUserData = async () => {
             const response = await apiRequest("users", "GET", `${user?._id}`);
             if (response.success) {
                 return response.data;
             }
+            return null;
         };
 
-        // Fetch user data first
         const userData = await fetchUserData();
 
-        console.log(hasShipping);
-        console.log(userData.address);
-        if (hasShipping && userData.address == "") {
-            // redirect to profile page with a pop up that requires user to update address
-            console.log("redirect");
+        if (
+            hasShipping &&
+            (!userData?.address || userData.address.trim() === "")
+        ) {
             setShowRedirectModal(true);
             return;
         }
 
-        // Then, send the data with the order request
         const response = await apiRequest(
             "order",
             "POST",
             "create-checkout-session",
-            { order, userID: user?._id }
+            { order, deliveryMethod, userID: user?._id }
         );
 
         if (response.success) {
