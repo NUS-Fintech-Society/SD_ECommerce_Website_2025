@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     Modal,
     ModalOverlay,
@@ -14,12 +14,19 @@ import {
     NumberInputStepper,
     NumberIncrementStepper,
     NumberDecrementStepper,
+    AlertDialog,
+    AlertDialogBody,
+    AlertDialogContent,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogOverlay,
 } from "@chakra-ui/react";
 import { Listing } from "./HomeListings";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useAuth } from "../providers/AuthProvider";
 import { useCart } from "../providers/CartProvider";
 import { apiRequest } from "../api/apiRequest";
+import { useNavigate } from "react-router-dom";
 
 interface ListingDetailsModalProps {
     isOpen: boolean;
@@ -44,7 +51,10 @@ function ListingDetailsModal({
     >(null);
     const { user } = useAuth();
     const [quantity, setQuantity] = useState(1);
+    const [showRedirectModal, setShowRedirectModal] = useState(false);
     const { addToCart, clearCart } = useCart();
+    const navigate = useNavigate();
+    const cancelRef = useRef<HTMLButtonElement>(null!);
 
     useEffect(() => {
         console.log(selectedSpec);
@@ -108,19 +118,64 @@ function ListingDetailsModal({
         handleClose(); // Close modal after adding to cart
     };
 
+    // const handleBuyNow = async () => {
+    //     // clearCart() for debugging
+    //     // handle checkout logic here
+    //     console.log("Buying now:", {
+    //         listing: listing._id,
+    //         specification: selectedSpec,
+    //         delivery: selectedDelivery,
+    //         quantity: quantity,
+    //     });
+    //     if (!selectedSpec || !selectedDelivery) {
+    //         alert("Please select both specification and delivery method");
+    //         return;
+    //     }
+
+    //     const order = {
+    //         items: [
+    //             {
+    //                 product: {
+    //                     title: listing.title,
+    //                     price: parseFloat(selectedSpec.price),
+    //                 },
+    //                 quantity: quantity,
+    //             },
+    //         ],
+    //     };
+
+    //     const deliveryMethod =
+    //         selectedDelivery === "shipping" ? "standard" : "self-collection";
+
+    //     const response = await apiRequest(
+    //         "order",
+    //         "POST",
+    //         "create-checkout-session",
+    //         { order, deliveryMethod, userID: user?._id }
+    //     );
+
+    //     if (response.success) {
+    //         window.open(response.data.url, "_blank");
+    //     } else {
+    //         console.error("Error creating checkout session:", response.message);
+    //     }
+    // };
+
     const handleBuyNow = async () => {
-        // clearCart() for debugging
-        // handle checkout logic here
         console.log("Buying now:", {
             listing: listing._id,
             specification: selectedSpec,
             delivery: selectedDelivery,
             quantity: quantity,
         });
+
         if (!selectedSpec || !selectedDelivery) {
             alert("Please select both specification and delivery method");
             return;
         }
+
+        const deliveryMethod =
+            selectedDelivery === "shipping" ? "standard" : "self-collection";
 
         const order = {
             items: [
@@ -130,18 +185,37 @@ function ListingDetailsModal({
                         price: parseFloat(selectedSpec.price),
                     },
                     quantity: quantity,
+                    deliveryMethod: deliveryMethod,
                 },
             ],
         };
 
-        const deliveryMethod =
-            selectedDelivery === "shipping" ? "standard" : "self-collection";
+        // Optional: check user address for shipping
+        if (selectedDelivery === "shipping") {
+            const fetchUserData = async () => {
+                const response = await apiRequest(
+                    "users",
+                    "GET",
+                    `${user?._id}`
+                );
+                if (response.success) {
+                    return response.data;
+                }
+            };
+
+            const userData = await fetchUserData();
+            if (!userData.address) {
+                console.log("redirect");
+                setShowRedirectModal(true);
+                return;
+            }
+        }
 
         const response = await apiRequest(
             "order",
             "POST",
             "create-checkout-session",
-            { order, deliveryMethod, userID: user?._id }
+            { order, userID: user?._id }
         );
 
         if (response.success) {
@@ -256,211 +330,268 @@ function ListingDetailsModal({
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={handleClose} size="xl">
-            <ModalOverlay
-                backdropFilter="blur(4px)"
-                backgroundColor="rgba(0, 0, 0, 0.6)"
-            />
-            <ModalContent>
-                <ModalHeader>{listing.title}</ModalHeader>
-                <ModalCloseButton />
-                <ModalBody pb={6}>
-                    <div className="space-y-6">
-                        {/* Images Carousel */}
-                        <div className="relative h-64 mb-4">
-                            {listing.images.length > 0 && (
-                                <>
-                                    <img
-                                        src={listing.images[currentImageIndex]}
-                                        alt={`${listing.title} - Image ${
-                                            currentImageIndex + 1
-                                        }`}
-                                        className="w-full h-full object-cover rounded-lg"
-                                    />
+        <>
+            <Modal isOpen={isOpen} onClose={handleClose} size="xl">
+                <ModalOverlay
+                    backdropFilter="blur(4px)"
+                    backgroundColor="rgba(0, 0, 0, 0.6)"
+                />
+                <ModalContent>
+                    <ModalHeader>{listing.title}</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody pb={6}>
+                        <div className="space-y-6">
+                            {/* Images Carousel */}
+                            <div className="relative h-64 mb-4">
+                                {listing.images.length > 0 && (
+                                    <>
+                                        <img
+                                            src={
+                                                listing.images[
+                                                    currentImageIndex
+                                                ]
+                                            }
+                                            alt={`${listing.title} - Image ${
+                                                currentImageIndex + 1
+                                            }`}
+                                            className="w-full h-full object-cover rounded-lg"
+                                        />
 
-                                    {/* Navigation Arrows */}
-                                    {listing.images.length > 1 && (
-                                        <>
-                                            <IconButton
-                                                aria-label="Previous image"
-                                                icon={<FaChevronLeft />}
-                                                onClick={previousImage}
-                                                position="absolute"
-                                                left="2"
-                                                top="50%"
-                                                transform="translateY(-50%)"
-                                                colorScheme="blackAlpha"
-                                                rounded="full"
-                                                className="opacity-70 hover:opacity-100"
-                                            />
-                                            <IconButton
-                                                aria-label="Next image"
-                                                icon={<FaChevronRight />}
-                                                onClick={nextImage}
-                                                position="absolute"
-                                                right="2"
-                                                top="50%"
-                                                transform="translateY(-50%)"
-                                                colorScheme="blackAlpha"
-                                                rounded="full"
-                                                className="opacity-70 hover:opacity-100"
-                                            />
-                                        </>
-                                    )}
+                                        {/* Navigation Arrows */}
+                                        {listing.images.length > 1 && (
+                                            <>
+                                                <IconButton
+                                                    aria-label="Previous image"
+                                                    icon={<FaChevronLeft />}
+                                                    onClick={previousImage}
+                                                    position="absolute"
+                                                    left="2"
+                                                    top="50%"
+                                                    transform="translateY(-50%)"
+                                                    colorScheme="blackAlpha"
+                                                    rounded="full"
+                                                    className="opacity-70 hover:opacity-100"
+                                                />
+                                                <IconButton
+                                                    aria-label="Next image"
+                                                    icon={<FaChevronRight />}
+                                                    onClick={nextImage}
+                                                    position="absolute"
+                                                    right="2"
+                                                    top="50%"
+                                                    transform="translateY(-50%)"
+                                                    colorScheme="blackAlpha"
+                                                    rounded="full"
+                                                    className="opacity-70 hover:opacity-100"
+                                                />
+                                            </>
+                                        )}
 
-                                    {/* Image Indicators */}
-                                    <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-2">
-                                        {listing.images.map((_, index) => (
-                                            <button
+                                        {/* Image Indicators */}
+                                        <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-2">
+                                            {listing.images.map((_, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() =>
+                                                        setCurrentImageIndex(
+                                                            index
+                                                        )
+                                                    }
+                                                    className={`w-2 h-2 rounded-full transition-all ${
+                                                        currentImageIndex ===
+                                                        index
+                                                            ? "bg-white w-4"
+                                                            : "bg-white/50"
+                                                    }`}
+                                                />
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+
+                            {/* Description */}
+                            <div>
+                                <h3 className="font-semibold text-lg mb-2">
+                                    Description
+                                </h3>
+                                <p className="text-gray-700">
+                                    {listing.description}
+                                </p>
+                            </div>
+
+                            {/* Specifications */}
+                            <div>
+                                <h3 className="font-semibold text-lg text-gray-800 mb-2">
+                                    Specifications (Please select one)
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {listing.specifications.map(
+                                        (spec, index) => (
+                                            <div
                                                 key={index}
-                                                onClick={() =>
-                                                    setCurrentImageIndex(index)
-                                                }
-                                                className={`w-2 h-2 rounded-full transition-all ${
-                                                    currentImageIndex === index
-                                                        ? "bg-white w-4"
-                                                        : "bg-white/50"
-                                                }`}
-                                            />
-                                        ))}
-                                    </div>
-                                </>
-                            )}
-                        </div>
-
-                        {/* Description */}
-                        <div>
-                            <h3 className="font-semibold text-lg mb-2">
-                                Description
-                            </h3>
-                            <p className="text-gray-700">
-                                {listing.description}
-                            </p>
-                        </div>
-
-                        {/* Specifications */}
-                        <div>
-                            <h3 className="font-semibold text-lg text-gray-800 mb-2">
-                                Specifications (Please select one)
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {listing.specifications.map((spec, index) => (
-                                    <div
-                                        key={index}
-                                        onClick={() => {
-                                            setSelectedSpec(spec);
-                                            setQuantity(1);
-                                        }}
-                                        className={`p-3 rounded-md cursor-pointer transition-all border 
+                                                onClick={() => {
+                                                    setSelectedSpec(spec);
+                                                    setQuantity(1);
+                                                }}
+                                                className={`p-3 rounded-md cursor-pointer transition-all border 
                 ${
                     selectedSpec === spec
                         ? "border-blue-400 bg-gray-100"
                         : "border-gray-200 hover:bg-gray-50"
                 }`}
-                                    >
-                                        <p className="text-gray-700">
-                                            <span className="font-medium">
-                                                Color:
-                                            </span>{" "}
-                                            {spec.colour}
-                                        </p>
-                                        <p className="text-gray-700">
-                                            <span className="font-medium">
-                                                Size:
-                                            </span>{" "}
-                                            {spec.size}
-                                        </p>
-                                        <p className="text-gray-700">
-                                            <span className="font-medium">
-                                                Price ($):
-                                            </span>{" "}
-                                            {spec.price}
-                                        </p>
+                                            >
+                                                <p className="text-gray-700">
+                                                    <span className="font-medium">
+                                                        Color:
+                                                    </span>{" "}
+                                                    {spec.colour}
+                                                </p>
+                                                <p className="text-gray-700">
+                                                    <span className="font-medium">
+                                                        Size:
+                                                    </span>{" "}
+                                                    {spec.size}
+                                                </p>
+                                                <p className="text-gray-700">
+                                                    <span className="font-medium">
+                                                        Price ($):
+                                                    </span>{" "}
+                                                    {spec.price}
+                                                </p>
 
-                                        {selectedSpec === spec && (
-                                            <span className="text-blue-500 font-medium text-sm">
-                                                ✔ Selected
-                                            </span>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-
-                            {selectedSpec && (
-                                <div className="mt-4">
-                                    <div className="flex items-center justify-between">
-                                        <label className="font-medium">
-                                            Quantity:
-                                        </label>
-                                        <span className="text-sm text-gray-600">
-                                            Available: {selectedSpec.quantity}
-                                        </span>
-                                    </div>
-                                    <NumberInput
-                                        mt={2}
-                                        min={1}
-                                        max={parseInt(selectedSpec.quantity)}
-                                        value={quantity}
-                                        onChange={(_, value) =>
-                                            handleQuantityChange(value)
-                                        }
-                                    >
-                                        <NumberInputField />
-                                        <NumberInputStepper>
-                                            <NumberIncrementStepper />
-                                            <NumberDecrementStepper />
-                                        </NumberInputStepper>
-                                    </NumberInput>
+                                                {selectedSpec === spec && (
+                                                    <span className="text-blue-500 font-medium text-sm">
+                                                        ✔ Selected
+                                                    </span>
+                                                )}
+                                            </div>
+                                        )
+                                    )}
                                 </div>
-                            )}
-                        </div>
 
-                        {/* Sizing Chart */}
-                        <div>
-                            <h3 className="font-semibold text-lg mb-2">
-                                Sizing Chart
-                            </h3>
-                            <div className="bg-gray-50 p-3 rounded-lg">
-                                {listing.sizingChart.map((size, index) => (
-                                    <img
-                                        key={index}
-                                        src={size} // Ensure it's a valid image URL
-                                        alt={`Sizing Chart ${index + 1}`}
-                                        className="w-full h-auto rounded-lg"
-                                    />
-                                ))}
+                                {selectedSpec && (
+                                    <div className="mt-4">
+                                        <div className="flex items-center justify-between">
+                                            <label className="font-medium">
+                                                Quantity:
+                                            </label>
+                                            <span className="text-sm text-gray-600">
+                                                Available:{" "}
+                                                {selectedSpec.quantity}
+                                            </span>
+                                        </div>
+                                        <NumberInput
+                                            mt={2}
+                                            min={1}
+                                            max={parseInt(
+                                                selectedSpec.quantity
+                                            )}
+                                            value={quantity}
+                                            onChange={(_, value) =>
+                                                handleQuantityChange(value)
+                                            }
+                                        >
+                                            <NumberInputField />
+                                            <NumberInputStepper>
+                                                <NumberIncrementStepper />
+                                                <NumberDecrementStepper />
+                                            </NumberInputStepper>
+                                        </NumberInput>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Sizing Chart */}
+                            <div>
+                                <h3 className="font-semibold text-lg mb-2">
+                                    Sizing Chart
+                                </h3>
+                                <div className="bg-gray-50 p-3 rounded-lg">
+                                    {listing.sizingChart.map((size, index) => (
+                                        <img
+                                            key={index}
+                                            src={size} // Ensure it's a valid image URL
+                                            alt={`Sizing Chart ${index + 1}`}
+                                            className="w-full h-auto rounded-lg"
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Delivery Method */}
+                            <div>
+                                <h3 className="font-semibold text-lg mb-2">
+                                    Delivery Method
+                                </h3>
+                                <DeliveryMethodsSection />
                             </div>
                         </div>
-
-                        {/* Delivery Method */}
-                        <div>
-                            <h3 className="font-semibold text-lg mb-2">
-                                Delivery Method
-                            </h3>
-                            <DeliveryMethodsSection />
+                    </ModalBody>
+                    <ModalFooter>
+                        <div className="flex flex-col gap-4 w-full">
+                            <Button
+                                width="full"
+                                onClick={handleAddToCart}
+                                isDisabled={!selectedSpec || !selectedDelivery}
+                            >
+                                Add to Cart
+                            </Button>
+                            <Button
+                                width="full"
+                                onClick={handleBuyNow}
+                                isDisabled={!selectedSpec || !selectedDelivery}
+                            >
+                                Buy Now
+                            </Button>
                         </div>
-                    </div>
-                </ModalBody>
-                <ModalFooter>
-                    <div className="flex flex-col gap-4 w-full">
-                        <Button
-                            width="full"
-                            onClick={handleAddToCart}
-                            isDisabled={!selectedSpec || !selectedDelivery}
-                        >
-                            Add to Cart
-                        </Button>
-                        <Button
-                            width="full"
-                            onClick={handleBuyNow}
-                            isDisabled={!selectedSpec || !selectedDelivery}
-                        >
-                            Buy Now
-                        </Button>
-                    </div>
-                </ModalFooter>
-            </ModalContent>
-        </Modal>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+            {/* Address Validation Modal */}
+            {showRedirectModal && (
+                <AlertDialog
+                    isOpen={showRedirectModal}
+                    leastDestructiveRef={cancelRef}
+                    onClose={() => setShowRedirectModal(false)}
+                    isCentered
+                >
+                    <AlertDialogOverlay>
+                        <AlertDialogContent>
+                            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                                Shipping Address Required
+                            </AlertDialogHeader>
+
+                            <AlertDialogBody>
+                                You need to add a shipping address before
+                                checking out with delivery items.
+                            </AlertDialogBody>
+
+                            <AlertDialogFooter>
+                                <Button
+                                    ref={cancelRef}
+                                    onClick={() => setShowRedirectModal(false)}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    colorScheme="blue"
+                                    ml={3}
+                                    onClick={() => {
+                                        setShowRedirectModal(false);
+                                        navigate("/profile", {
+                                            state: { fromCheckout: true },
+                                        });
+                                    }}
+                                >
+                                    Go to Profile
+                                </Button>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialogOverlay>
+                </AlertDialog>
+            )}
+        </>
     );
 }
 

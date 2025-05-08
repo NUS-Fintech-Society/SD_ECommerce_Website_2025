@@ -64,9 +64,9 @@ app.use("/adminRequest", adminRequest);
 app.use("/admin", admin);
 
 mongoose
-    .connect(`${process.env.MONGO_URI}`) // Changing to MongoAtlas //Use localhost for now
+    .connect(`${process.env.MONGODB_URI}`) // Changing to MongoAtlas //Use localhost for now
     .then(() => console.log("Connected to MongoDB..."))
-    .catch((err) => console.error("Could not connect to MongoDB..."));
+    .catch((err) => console.error("Could not connect to MongoDB...", err));
 
 if (!isProduction) {
     const port = process.env.PORT || 5000;
