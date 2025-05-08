@@ -220,6 +220,7 @@ function ListingDetailsModal({
 
         if (response.success) {
             window.open(response.data.url, "_blank");
+            onClose();
         } else {
             console.error("Error creating checkout session:", response.message);
         }

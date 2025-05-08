@@ -20,33 +20,71 @@ const app = express();
 const isProduction = process.env.NODE_ENV === "production";
 const frontendURL = process.env.FRONTEND_URL || "http://localhost:3000";
 // ✅ Apply allowCors middleware before routes
-const allowCors = (req, res, next) => {
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader(
-        "Access-Control-Allow-Methods",
-        "GET,OPTIONS,PATCH,DELETE,POST,PUT"
-    );
-    res.setHeader(
-        "Access-Control-Allow-Headers",
-        "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
-    );
+// const allowCors = (req, res, next) => {
+//     res.setHeader("Access-Control-Allow-Credentials", "true");
+//     res.setHeader("Access-Control-Allow-Origin", "*");
+//     res.setHeader(
+//         "Access-Control-Allow-Methods",
+//         "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+//     );
+//     res.setHeader(
+//         "Access-Control-Allow-Headers",
+//         "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
+//     );
 
-    if (req.method === "OPTIONS") {
-        return res.status(200).end();
-    }
+//     if (req.method === "OPTIONS") {
+//         return res.status(200).end();
+//     }
 
-    next();
-};
+//     next();
+// };
 
-app.use(allowCors); // ✅ Apply CORS middleware globally
+const allowedOrigins = [
+    "https://sd-e-commerce-website-2025-client.vercel.app",
+    frontendURL,
+];
+
 const corsOptions = {
-    origin: "*",
-    credentials: true, //access-control-allow-credentials:true
+    origin: function(origin, callback) {
+        console.log("Origin:", origin);
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    optionSuccessStatus: 200,
+    allowedHeaders: [
+        "Content-Type",
+        "Authorization",
+        "X-Requested-With",
+        "Access-Control-Allow-Methods",
+        "Access-Control-Request-Headers",
+        "Access-Control-Allow-Headers",
+    ],
+    optionsSuccessStatus: 200,
 };
+
+// Apply CORS middleware before any routes
+app.use(cors(corsOptions));
+
+// Pre-flight OPTIONS requests
+app.options("*", cors(corsOptions));
+
+// app.use(allowCors); // ✅ Apply CORS middleware globally
+// const corsOptions = {
+//     origin: "*",
+//     credentials: true, //access-control-allow-credentials:true
+//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+//     allowedHeaders: [
+//         "Content-Type",
+//         "Authorization",
+//         "Access-Control-Allow-Methods",
+//         "Access-Control-Request-Headers",
+//     ],
+//     optionSuccessStatus: 200,
+// };
 
 app.use(express.json());
 // app.use(cors(corsOptions));
@@ -62,18 +100,37 @@ app.use("/listings", listingsRoute);
 app.use("/drafts", draftsRoute);
 app.use("/adminRequest", adminRequest);
 app.use("/admin", admin);
+// Add a test route to verify CORS is working
+app.get("/api/test-cors", (req, res) => {
+    res.json({ message: "CORS is configured correctly!" });
+});
 
-mongoose
-    .connect(`${process.env.MONGODB_URI}`) // Changing to MongoAtlas //Use localhost for now
-    .then(() => console.log("Connected to MongoDB..."))
-    .catch((err) => console.error("Could not connect to MongoDB...", err));
+const connectDB = require("./db");
 
-if (!isProduction) {
-    const port = process.env.PORT || 5000;
-    app.listen(port, () => {
-        console.log(`🚀 Server running locally on port ${port}`);
-    });
-}
+(async () => {
+    await connectDB();
+    if (!isProduction) {
+        const port = process.env.PORT || 5000;
+        app.listen(port, () => {
+            console.log(`🚀 Server running locally on port ${port}`);
+        });
+    }
+})();
+
+// mongoose
+//     .connect(`${process.env.MONGODB_URI}`, {
+//         useNewUrlParser: true,
+//         useUnifiedTopology: true,
+//     }) // Changing to MongoAtlas //Use localhost for now
+//     .then(() => console.log("Connected to MongoDB..."))
+//     .catch((err) => console.error("Could not connect to MongoDB..."));
+
+// if (!isProduction) {
+//     const port = process.env.PORT || 5000;
+//     app.listen(port, () => {
+//         console.log(`🚀 Server running locally on port ${port}`);
+//     });
+// }
 
 // Export app for Vercel deployment
 module.exports = app;

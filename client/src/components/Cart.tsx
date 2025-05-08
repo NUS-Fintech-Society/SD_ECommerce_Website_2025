@@ -13,7 +13,6 @@ import {
     AlertDialogOverlay,
     Button,
 } from "@chakra-ui/react";
-
 function Cart() {
     const { items, removeFromCart, updateQuantity, getCartTotal, clearCart } =
         useCart();
@@ -23,7 +22,9 @@ function Cart() {
     const cancelRef = useRef<HTMLButtonElement>(null!);
 
     const handleCheckout = async () => {
-        const hasShipping = items.some(item => item.deliveryMethod === "shipping");
+        const hasShipping = items.some(
+            (item) => item.deliveryMethod === "shipping"
+        );
 
         const order = {
             items: items.map((item) => ({
@@ -32,10 +33,13 @@ function Cart() {
                     price: parseFloat(item.specification.price),
                 },
                 quantity: item.quantity,
-                deliveryMethod: item.deliveryMethod == "shipping" ? "standard" : "self-collection",
+                deliveryMethod:
+                    item.deliveryMethod == "shipping"
+                        ? "standard"
+                        : "self-collection",
             })),
         };
-        
+
         const fetchUserData = async () => {
             const response = await apiRequest("users", "GET", `${user?._id}`);
             if (response.success) {
@@ -46,13 +50,13 @@ function Cart() {
         // Fetch user data first
         const userData = await fetchUserData();
 
-        console.log(hasShipping)
-        console.log(userData.address)
+        console.log(hasShipping);
+        console.log(userData.address);
         if (hasShipping && userData.address == "") {
             // redirect to profile page with a pop up that requires user to update address
-            console.log("redirect")
-            setShowRedirectModal(true)
-            return
+            console.log("redirect");
+            setShowRedirectModal(true);
+            return;
         }
 
         // Then, send the data with the order request
@@ -109,6 +113,15 @@ function Cart() {
                     >
                         Start Shopping
                     </Button>
+                    <Button
+                        colorScheme="blue"
+                        size="lg"
+                        style={{ marginTop: "10px" }}
+                        width="full"
+                        onClick={() => navigate("/orderHistory")}
+                    >
+                        View Order History
+                    </Button>
                 </div>
             </div>
         );
@@ -116,7 +129,16 @@ function Cart() {
 
     return (
         <div className="container mx-auto px-4 py-8 min-h-screen">
-            <h1 className="text-2xl font-bold mb-6">Shopping Cart</h1>
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold">Shopping Cart</h1>
+                <Button
+                    colorScheme="blue"
+                    variant="outline"
+                    onClick={() => navigate("/orderHistory")}
+                >
+                    View Order History
+                </Button>
+            </div>
 
             <div className="grid grid-cols-1 gap-6 mb-8">
                 {items.map((item) => (
@@ -273,23 +295,24 @@ function Cart() {
                             </AlertDialogHeader>
 
                             <AlertDialogBody>
-                                You need to add a shipping address before checking out with delivery items.
+                                You need to add a shipping address before
+                                checking out with delivery items.
                             </AlertDialogBody>
 
                             <AlertDialogFooter>
-                                <Button 
-                                    ref={cancelRef} 
+                                <Button
+                                    ref={cancelRef}
                                     onClick={() => setShowRedirectModal(false)}
                                 >
                                     Cancel
                                 </Button>
-                                <Button 
-                                    colorScheme="blue" 
-                                    ml={3} 
+                                <Button
+                                    colorScheme="blue"
+                                    ml={3}
                                     onClick={() => {
                                         setShowRedirectModal(false);
-                                        navigate('/profile', { 
-                                            state: { fromCheckout: true } 
+                                        navigate("/profile", {
+                                            state: { fromCheckout: true },
                                         });
                                     }}
                                 >
