@@ -117,11 +117,15 @@ router.post("/create-checkout-session", async (req, res) => {
             client_reference_id: newOrder._id.toString(),
             payment_method_types: ["card", "paynow", "grabpay"],
             line_items: [
-                ...order.items.map((item) => ({
+                ...orderItems.map((item) => ({
                     price_data: {
                         currency: "sgd",
                         product_data: {
-                            name: item.product.title,
+                            name:
+                                item.title +
+                                (item.deliveryMethod == "standard"
+                                    ? " (Standard Delivery)"
+                                    : " (Self Collection)"),
                         },
                         unit_amount: Math.round(item.product.price * 100), // Ensure integer
                     },
@@ -131,8 +135,7 @@ router.post("/create-checkout-session", async (req, res) => {
                     price_data: {
                         currency: "sgd",
                         product_data: {
-                            name: `${deliveryMethod.charAt(0).toUpperCase() +
-                                deliveryMethod.slice(1)} Delivery`,
+                            name: "Delivery Fee",
                         },
                         unit_amount: Math.round(deliveryFee * 100), // Ensure integer
                     },

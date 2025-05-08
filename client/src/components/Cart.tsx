@@ -1,17 +1,31 @@
 import { useCart } from "../providers/CartProvider";
-import { Button } from "@chakra-ui/react";
 import { FaTrash, FaShoppingCart } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../api/apiRequest";
 import { useAuth } from "../providers/AuthProvider";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+    AlertDialog,
+    AlertDialogBody,
+    AlertDialogContent,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogOverlay,
+    Button,
+} from "@chakra-ui/react";
 function Cart() {
     const { items, removeFromCart, updateQuantity, getCartTotal, clearCart } =
         useCart();
     const navigate = useNavigate();
     const { user, dispatch } = useAuth();
+    const [showRedirectModal, setShowRedirectModal] = useState(false);
+    const cancelRef = useRef<HTMLButtonElement>(null!);
 
     const handleCheckout = async () => {
+        const hasShipping = items.some(
+            (item) => item.deliveryMethod === "shipping"
+        );
+
         const order = {
             items: items.map((item) => ({
                 product: {
@@ -19,13 +33,12 @@ function Cart() {
                     price: parseFloat(item.specification.price),
                 },
                 quantity: item.quantity,
+                deliveryMethod:
+                    item.deliveryMethod == "shipping"
+                        ? "standard"
+                        : "self-collection",
             })),
         };
-
-        const hasShipping = items.some(
-            (item) => item.deliveryMethod === "shipping"
-        );
-        const deliveryMethod = hasShipping ? "standard" : "self-collection"; // Need to change this based on user selection
 
         const fetchUserData = async () => {
             const response = await apiRequest("users", "GET", `${user?._id}`);
@@ -37,12 +50,21 @@ function Cart() {
         // Fetch user data first
         const userData = await fetchUserData();
 
+        console.log(hasShipping);
+        console.log(userData.address);
+        if (hasShipping && userData.address == "") {
+            // redirect to profile page with a pop up that requires user to update address
+            console.log("redirect");
+            setShowRedirectModal(true);
+            return;
+        }
+
         // Then, send the data with the order request
         const response = await apiRequest(
             "order",
             "POST",
             "create-checkout-session",
-            { order, deliveryMethod, userID: user?._id }
+            { order, userID: user?._id }
         );
 
         if (response.success) {
@@ -257,6 +279,50 @@ function Cart() {
                     </div>
                 </div>
             </div>
+
+            {/* Address Validation Modal */}
+            {showRedirectModal && (
+                <AlertDialog
+                    isOpen={showRedirectModal}
+                    leastDestructiveRef={cancelRef}
+                    onClose={() => setShowRedirectModal(false)}
+                    isCentered
+                >
+                    <AlertDialogOverlay>
+                        <AlertDialogContent>
+                            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                                Shipping Address Required
+                            </AlertDialogHeader>
+
+                            <AlertDialogBody>
+                                You need to add a shipping address before
+                                checking out with delivery items.
+                            </AlertDialogBody>
+
+                            <AlertDialogFooter>
+                                <Button
+                                    ref={cancelRef}
+                                    onClick={() => setShowRedirectModal(false)}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    colorScheme="blue"
+                                    ml={3}
+                                    onClick={() => {
+                                        setShowRedirectModal(false);
+                                        navigate("/profile", {
+                                            state: { fromCheckout: true },
+                                        });
+                                    }}
+                                >
+                                    Go to Profile
+                                </Button>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialogOverlay>
+                </AlertDialog>
+            )}
         </div>
     );
 }
