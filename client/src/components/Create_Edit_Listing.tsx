@@ -1507,7 +1507,7 @@ const CreateListing = () => {
                                     </button>
                                 </div>
                             </div>
-                            <div className="details-container">
+                            <div className="details-container px-5">
                                 <h2 className="title">{title}</h2>
                                 <p className="description">{description}</p>
                                 <div className="options">
